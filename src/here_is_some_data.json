@@ -1,0 +1,16 @@
+{
+"type":"OBSERVATION",
+"flags": ["METAR","NOODLES","AUTO"],
+"datetime":"2022-12-15T05:00:00Z",
+"station" : "NZHB",
+"airTemperature_C":27.0,
+"dewpointTemperature_C":20.0,
+"qnh_hPa":1010,
+"pressure_hPa":1010.9,
+"meanWindDirection_Deg":100,
+"meanWindSpeed_ms":8.0,
+"extremeClockwiseWindDirection_Deg":150,
+"extremeCounterClockwiseWindDirection_Deg":60,
+"prevailingVisibility_m":12345,
+"seagullCount":12
+}
