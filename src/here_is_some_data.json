@@ -5,12 +5,31 @@
 "station" : "NZHB",
 "airTemperature_C":27.0,
 "dewpointTemperature_C":20.0,
-"qnh_hPa":1010,
+"qnh_hPa":1010.9,
 "pressure_hPa":1010.9,
 "meanWindDirection_Deg":100,
 "meanWindSpeed_ms":8.0,
 "extremeClockwiseWindDirection_Deg":150,
 "extremeCounterClockwiseWindDirection_Deg":60,
 "prevailingVisibility_m":12345,
-"seagullCount":12
+"cloudGroups" : [
+    {
+    "cloudKey" : "SCT",
+    "flightLevel" : 10,
+    "cloudType":"TCU"
+    },
+    {
+    "cloudKey" : "BKN",
+    "flightLevel" : 20,
+    "cloudType":"CB"
+    }
+    ],
+"seagullCount":12,
+"runwayInfo":{
+    "runwayCode":"36L",
+    "wxCode1":4,
+    "wxCode2":8,
+    "runwayState":91
+
+}
 }
