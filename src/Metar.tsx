@@ -10,6 +10,11 @@ interface CloudGroup {
   flightLevel : number;
   cloudType: ('' | 'TCU' | 'CB');
 }
+interface PresentWeather{
+  code:string;
+  locational:string;
+  intensity:string;
+}
 
 interface Props {
     iwxxmObs: string;
@@ -21,6 +26,8 @@ interface DisplayUnits{
   windSpeedUnits : string;
   //temperature : number;
   temperatureUnits : string;
+  //visibility: number;
+  visibilityUnits: string;
   pressure :number;
   pressureUnits :string;
   windSpeedDesc : string;
@@ -40,13 +47,16 @@ interface MetarFields  {
   flags: string []; //('AUTO' | "WOOZLE" | 'METAR')[]; 
   meanWindDirection_Deg: number;
   meanWindSpeed_ms: number;
+  gust_ms: number;
   extremeClockwiseWindDirection_Deg: number;
   extremeCounterClockwiseWindDirection_Deg: number;
   prevailingVisibility_m: number;
+  presentWeather:string;
   cloudGroups: CloudGroup [];
   airTemperature_C: number;
   dewpointTemperature_C: number;
   qnh_hPa: number;
+  recentWeather:PresentWeather;
   runwayInfo:RunwayInfo;
   remarks: string;
   trend: string;
@@ -61,9 +71,12 @@ const METAR_FIELD_KEYS=  ["datetime",
                     "flags",
                     "meanWindDirection_Deg",
                     "meanWindSpeed_ms",
+                    "gust_ms",
                     "extremeClockwiseWindDirection_Deg",
                     "extremeCounterClockwiseWindDirection_Deg",
                     "prevailingVisibility_m",
+                    "presentWeather",
+                    "pastWeather",
                     "cloudGroups",
                     "airTemperature_C",
                     "dewpointTemperature_C",
@@ -88,6 +101,8 @@ function loadUnits(displayFormat:string): DisplayUnits {
     windSpeedUnits:'',
     temperatureUnits : 'C',
     pressure : 1.0,
+    //visibility: "";
+    visibilityUnits: "", // Metres
     windSpeedDesc : 'wind speed is knots',
     temperatureDesc : 'temperature is Celcius',
     pressureUnits:'hPa',
@@ -103,6 +118,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
       temperatureUnits : 'F',//celciusToFahrenheit, // what do do here ... needs a function ...(t * 9/5)+32
       pressure : 1 / .338639, // hPa to inches of Hg - I think thats correct!!!
       windSpeedDesc : 'wind speed is MPH',
+      visibilityUnits: "SM", // Statute Miles
       temperatureDesc : 'temperature is Fahrenheit',
       pressureUnits : 'inHg',
       pressureDesc : 'pressure is inches of mercury' 
@@ -114,6 +130,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
       windSpeedUnits : '',
       temperatureUnits : 'C',//celciusToCelcius,
       pressure : 1.0,
+      visibilityUnits: "", // Metres
       windSpeedDesc : 'wind speed is knots',
       temperatureDesc : 'temperature is Celcius',
       pressureUnits:'hPa',
@@ -125,6 +142,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
       windSpeedUnits:'MPS', // lightyears
       temperatureUnits : 'K',// + 273.25, // todo
       pressure : 100,
+      visibilityUnits: "", // Metres
       pressureUnits:'Pa',
       windSpeedDesc : 'wind speed is who knows',
       temperatureDesc : 'temperature is not yet kelvin',
@@ -136,6 +154,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
       windSpeedUnits : '',
       temperatureUnits : 'C',//celciusToCelcius,
       pressure : 1.0,
+      visibilityUnits: "", // Metres
       windSpeedDesc : 'wind speed is knots',
       temperatureDesc : 'temperature is Celcius',
       pressureUnits:'hPa',
@@ -198,6 +217,7 @@ function icaoNumberStr(n:number,maxDigits:number,roundDown:boolean ){
   function loadExtraData(textValue: string){
     const j = JSON.parse(textValue);
   const result = new Array();
+ 
   for (const each in j){
     
     if (METAR_FIELD_KEYS.includes(each)){
@@ -214,9 +234,25 @@ function icaoNumberStr(n:number,maxDigits:number,roundDown:boolean ){
   return result; 
 }
 function dumpArray(a:any[]){
+  const results = ['Extra Data:'];
+  const skipIt = false;
+  if (skipIt) {
+    results.push(' TODO!');
+    return results.join('');
+  }
+  results.push('<table>');
+  results.push('<tr>');
+  results.push(`<th>key</th><th>value</th>`);
+  results.push('</tr>');
+
   for (const each in a){
     console.log(`have key ${each} ${a[each]["key"]} value: ${a[each]["value"]}`);
+    results.push('<tr>');
+    results.push(`<td>${a[each]["key"]}</td><td>${a[each]["value"]}</td>`);
+    results.push('</tr>');
   }
+  results.push('</table>');
+  return results.join('');
 } 
 
 
@@ -230,7 +266,9 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
     //for (eachField:string in iwxxmObs
       //METAR_FIELD_KEYS
     const extras = loadExtraData(iwxxmObs);
-    dumpArray(extras);
+    var extraAsHTML = dumpArray(extras);
+  
+
     console.log(`extras:${extras}`);
   } catch (e){
     console.log(`Error loading json data: ${e}`);
@@ -263,7 +301,9 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
     const result = [];
     try {
       //const roundedTo10Deg = parsedMetar["meanWindDirection_Deg"]
-      if (parsedMetar["meanWindDirection_Deg"] > 360) {
+      if (parsedMetar["meanWindSpeed_ms"] <= 3){ /// not sure thes eutits are correct
+        result.push('VRB'); 
+      } else if (parsedMetar["meanWindDirection_Deg"] > 360) {
         result.push('///')
       } else{
         var ddd10 = Math.round(parsedMetar["meanWindDirection_Deg"] / 10.0);
@@ -279,43 +319,63 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
 
     try {
       //console.log(` formatwind WS=${parsedMetar["meanWindSpeed_ms"]} out units= ${setUnits['windSpeed']}`)
-      result.push(icaoNumberStr(parsedMetar["meanWindSpeed_ms"]*setUnits['windSpeed'],2,false));
+      if (parsedMetar["meanWindSpeed_ms"] ){
+        result.push(icaoNumberStr(parsedMetar["meanWindSpeed_ms"]*setUnits['windSpeed'],2,false));
+      
+      if (parsedMetar["gust_ms"]) {
+        result.push(`G${icaoNumberStr(parsedMetar["gust_ms"]*setUnits['windSpeed'],2,false)}`);
+        // strictly can be 3 digits...
+      }
       result.push(setUnits['windSpeedUnits']);
+    //"gust_ms": 23,
+    }
+    } catch (e) {
+      result.push('//'); 
+    }
+    const windVarResult = [];
+    //try{
+    if (parsedMetar["extremeCounterClockwiseWindDirection_Deg"]){
+      windVarResult.push(icaoNumberStr(dirRoundTo10Deg(parsedMetar["extremeCounterClockwiseWindDirection_Deg"]),3,false));
+    } else {
+      windVarResult.push('///');
+    }
+    //} catch (e){
+    //  windVarResult.push('///');
+    //}
 
-  } catch (e) {
-    result.push('//'); 
-  }
-  const windVarResult = [];
-  //try{
-  if (parsedMetar["extremeCounterClockwiseWindDirection_Deg"]){
-    windVarResult.push(icaoNumberStr(dirRoundTo10Deg(parsedMetar["extremeCounterClockwiseWindDirection_Deg"]),3,false));
-  } else {
-    windVarResult.push('///');
-  }
-  //} catch (e){
-  //  windVarResult.push('///');
-  //}
+    windVarResult.push('V');
 
-  windVarResult.push('/');
+      if (parsedMetar["extremeClockwiseWindDirection_Deg"]){
+      windVarResult.push(icaoNumberStr(dirRoundTo10Deg(parsedMetar["extremeClockwiseWindDirection_Deg"]),3,false));
+    } else {
+      windVarResult.push('///');  
+    }
 
-  //try{
-  if (parsedMetar["extremeClockwiseWindDirection_Deg"]){
-    windVarResult.push(icaoNumberStr(dirRoundTo10Deg(parsedMetar["extremeClockwiseWindDirection_Deg"]),3,false));
-  } else {
-    windVarResult.push('///');  
-  }
-  // } catch (e){
-  //   windVarResult.push('///');
-  // }
-  const sWindVar = windVarResult.join('');
-  if (sWindVar != '///////') {
-    result.push(` ${sWindVar}`);
+    const sWindVar = windVarResult.join('');
+    if (sWindVar != '///V///') {
+      result.push(` ${sWindVar}`);
     } 
     return result.join('');
   }
 
   function formatViz() {
     let result = '////';
+    if (setUnits['visibilityUnits'] === 'SM'){
+      if (parsedMetar["prevailingVisibility_m"]){
+        const sm = parsedMetar["prevailingVisibility_m"] * 0.000621371192
+        if (sm < 0.50) {
+          result = '1/4SM';
+        } else if (sm < 0.75) {
+          result = '1/2SM';
+        } else if (sm < 1.0) {
+          result = '3/4SM';
+        } else if (sm > 15.0) {
+          result = '15SM';
+        } else {
+          result = `${Math.floor(sm)}SM`;
+        }
+      }
+    } else {
     try {
       if (displayFormat === 'nz' && parsedMetar["prevailingVisibility_m"] > 9999) {
         result = `${Math.round(parsedMetar["prevailingVisibility_m"]/1000)}KM`;
@@ -327,8 +387,18 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
       result = String(vvvv).padStart(4,"0");
     }
     } catch (e) {}
-
+  }
     return result
+  }
+  function formatPresentWx(){
+    if (parsedMetar["presentWeather"]){
+      return parsedMetar["presentWeather"]
+    }
+  }
+  function formatRecentWx(){
+    if (parsedMetar["recentWeather"]){
+      return parsedMetar["recentWeather"]
+    }
   }
   function formatCloud(cg: CloudGroup){
     const result = []
@@ -356,12 +426,14 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
     return result.join('');    
   }
   function formatClouds(){
-    //const clouds = parsedMetar["cloudGroups"];
-    //TODO validate clouds are in ascending order and increasing octas ...
+    // TODO validate clouds are in ascending order and increasing octas ...
     // TODO doesn't check if only 1 is CB/TCU
     const result = [];
     try {
-       if (parsedMetar["cloudGroups"].length > 3) {
+      if (parsedMetar["cloudGroups"].length === 0) {
+        return '//////' // prob not strictly correct...
+     }
+     if (parsedMetar["cloudGroups"].length > 3) {
           console.log('what to do with more than 3 cloud groups..... sod it! ');
           return '////// ////// //////'
        }
@@ -443,6 +515,9 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
         result = false;
       } else if (each['cloudType'] === 'CB') {
         result = false;
+      } else if (parsedMetar['presentWeather'] && parsedMetar['presentWeather'].indexOf('TS') >= 0){
+        result = false; // this prob correct....
+    
       }
     }
     if (result && parsedMetar['prevailingVisibility_m'] < 9999){
@@ -460,6 +535,11 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
     result.push(`${parsedMetar['runwayInfo']['runwayState']}`);
     return result.join('');
   }
+
+  function getExtraHTML(){
+    return extraAsHTML
+  }
+  
   function to_string(){
     const result = [];
     const logg = ['Notes']
@@ -489,10 +569,12 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
         result.push('CAVOK');
       } else{
         result.push(formatViz());
+        result.push(formatPresentWx());
 
         result.push(formatClouds());
       }
       result.push(formatTemps());
+      result.push(formatRecentWx());
       result.push(formatPressure());
       result.push(formatRunwayState());
 
@@ -509,12 +591,15 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
       throw new Error('This data cannot be formatted as a METAR!',{cause : e});
     }
   
-    return result.join(' ') + ' <p>>>>' + logg.join('\n') + '</p>';
+    return result.join(' ') ;
   }
-
+// ' <br>${extraAsHTML}<br>
   return (
     //<div>METAR AUTO {parsedMetar.meanWindSpeed_ms}</div>
-    <div>{to_string()}</div> 
+    <div>{to_string()}
+    <p/>{getExtraHTML()}<p/>
+
+   </div>
   )
 };
 function is_cccc (st:string) {

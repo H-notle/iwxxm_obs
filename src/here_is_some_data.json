@@ -7,6 +7,8 @@
 "dewpointTemperature_C":20.0,
 "qnh_hPa":1010.9,
 "pressure_hPa":1010.9,
+"presentWeather":"+SHRA",
+"pastWeather":"FG",
 "meanWindDirection_Deg":100,
 "meanWindSpeed_ms":8.0,
 "extremeClockwiseWindDirection_Deg":150,

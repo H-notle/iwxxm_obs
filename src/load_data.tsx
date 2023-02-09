@@ -31,10 +31,18 @@ const METAR_FIELD_KEYS=  ["datetime",
                     "trend"
                     ]
 function parseMyMetarFunction(textValue: string) {
-    const editableData = defaultIwxxmData
-    const strjson = JSON.stringify(defaultIwxxmData, null, 2);
-
-    return editableData;
+    //try{
+        const editableData = defaultIwxxmData
+        const prevData = defaultIwxxmData
+        try{
+            const strjson = JSON.stringify(defaultIwxxmData, null, 2);
+        } catch (e){
+            console.log(`parseMyMetarFunction exception ${e}`)
+        }
+        return editableData;
+    //} catch (e){
+    //    console.log(`json is not kosher ${e}`);
+    //}
   }
   function editableData(){
     return defaultIwxxmData

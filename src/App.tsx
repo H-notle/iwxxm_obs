@@ -12,7 +12,8 @@ function App() {
   //const strjson = JSON.stringify(defaultIwxxmData, null, 2);
 
   //const [jsonObs, setJsonObs] = React.useState(JSON.stringify(JSONMetar, null, 2));
-  const [jsonObs, setJsonObs] = React.useState(JSONMetar.toString());
+  //const [jsonObs, setJsonObs] = React.useState(JSONMetar.toString());
+  const [jsonObs, setJsonObs] = React.useState('TODO');
 
   const [displayFormat,setFormat] = React.useState('international');
 
@@ -49,8 +50,9 @@ function App() {
       <Metar iwxxmObs={iwxxmObs} displayFormat={displayFormat} />
       
       {/* <p> TODO get radio button working.....</p> */}
-      <p> TODO get box below showing extra stuff......</p>
+      <p> TODO fix showing extra stuff......</p>
       <p> TODO show errors/exceptions......</p>
+      <p> TODO add TREND data......</p>
       <p> colouring fields......</p>
       <p> adding a/c...... then ...</p>
       <p> map!!!... multi obs</p>
