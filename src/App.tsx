@@ -6,13 +6,9 @@ import './App.css';
 
 
 function App() {
-  //hbe var displayFormat= 'international';
 
   const [iwxxmObs, setIwxxmObs] = React.useState(JSON.stringify(defaultIwxxmData, null, 2));
-  //const strjson = JSON.stringify(defaultIwxxmData, null, 2);
 
-  //const [jsonObs, setJsonObs] = React.useState(JSON.stringify(JSONMetar, null, 2));
-  //const [jsonObs, setJsonObs] = React.useState(JSONMetar.toString());
   const [jsonObs, setJsonObs] = React.useState('TODO');
 
   const [displayFormat,setFormat] = React.useState('international');
@@ -23,16 +19,16 @@ function App() {
   return (
     
     <div className="App">
-      <p>Some structured obs:</p>
-      <textarea
+      <p>Here is some data to play with:</p>
+      <textarea rows={24} cols={60}
         onChange={(event) => {
           setIwxxmObs(event.target.value);
-          //displayFormat = handleChange.target.value
         }}
         value={iwxxmObs}
       />
        <p></p>
             <input type="radio" value="international" id="international" 
+            checked = {displayFormat === 'international'}
               onChange={()=> setFormat('international')} name="displayFormat" />
             <label>International</label> 
 
@@ -46,18 +42,21 @@ function App() {
             <input type="radio" value="nz" id="nz"
               onChange={()=> setFormat('nz')} name="displayFormat"/>
             <label>NZ</label>  
-      
+  
       <Metar iwxxmObs={iwxxmObs} displayFormat={displayFormat} />
-      <table 
-      id = "extra-data-table"
-      />        
+
+      <table //onChange={() => }
+        id = "extra-data-table"
+      />       
+
       {/* <p> TODO get radio button working.....</p> */}
       <p> TODO fix showing extra stuff......</p>
       <p> TODO show errors/exceptions......(stop crashing/highlight when json feed data is invalid)</p>
       <p> TODO add TREND data......</p>
       <p> colouring fields......</p>
       <p> adding a/c...... then ...</p>
-      <p> map!!!... multi obs</p>
+      <p> map?!!!... multiple obs</p>
+      <p>alternative views ...meteorogram</p>
       <textarea 
         onChange={(event) => {
           setJsonObs(event.target.value);
@@ -67,6 +66,6 @@ function App() {
       />
     </div>
   );
-}
-
+}//style={color:'red'}
+//style="color:#FF0000"
 export default App;

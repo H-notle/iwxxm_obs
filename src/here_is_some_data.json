@@ -3,8 +3,8 @@
 "flags": ["METAR","NOODLES","AUTO"],
 "datetime":"2022-12-15T05:00:00Z",
 "station" : "NZHB",
-"airTemperature_C":27.0,
-"dewpointTemperature_C":20.0,
+"airTemperature_C":27.3,
+"dewpointTemperature_C":20.1,
 "qnh_hPa":1010.9,
 "pressure_hPa":1010.9,
 "presentWeather":"+SHRA",
@@ -17,12 +17,12 @@
 "cloudGroups" : [
     {
     "cloudKey" : "SCT",
-    "flightLevel" : 10,
+    "flightLevel" : 60,
     "cloudType":"TCU"
     },
     {
     "cloudKey" : "BKN",
-    "flightLevel" : 20,
+    "flightLevel" : 70,
     "cloudType":"CB"
     }
     ],
