@@ -32,7 +32,7 @@ function App() {
         value={iwxxmObs}
       />
        <p></p>
-            <input type="radio" value="international" id="international"
+            <input type="radio" value="international" id="international" 
               onChange={()=> setFormat('international')} name="displayFormat" />
             <label>International</label> 
 
@@ -48,10 +48,12 @@ function App() {
             <label>NZ</label>  
       
       <Metar iwxxmObs={iwxxmObs} displayFormat={displayFormat} />
-      
+      <table 
+      id = "extra-data-table"
+      />        
       {/* <p> TODO get radio button working.....</p> */}
       <p> TODO fix showing extra stuff......</p>
-      <p> TODO show errors/exceptions......</p>
+      <p> TODO show errors/exceptions......(stop crashing/highlight when json feed data is invalid)</p>
       <p> TODO add TREND data......</p>
       <p> colouring fields......</p>
       <p> adding a/c...... then ...</p>

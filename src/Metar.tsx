@@ -51,7 +51,7 @@ interface MetarFields  {
   extremeClockwiseWindDirection_Deg: number;
   extremeCounterClockwiseWindDirection_Deg: number;
   prevailingVisibility_m: number;
-  presentWeather:string;
+  presentWeather:string;  //TODO only one allowed right now
   cloudGroups: CloudGroup [];
   airTemperature_C: number;
   dewpointTemperature_C: number;
@@ -75,7 +75,7 @@ const METAR_FIELD_KEYS=  ["datetime",
                     "extremeClockwiseWindDirection_Deg",
                     "extremeCounterClockwiseWindDirection_Deg",
                     "prevailingVisibility_m",
-                    "presentWeather",
+                    "presentWeather", 
                     "pastWeather",
                     "cloudGroups",
                     "airTemperature_C",
@@ -127,7 +127,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
   }  else if (displayFormat === 'international') {
     results ={
       windSpeed : 1.94384,
-      windSpeedUnits : '',
+      windSpeedUnits : 'KT',
       temperatureUnits : 'C',//celciusToCelcius,
       pressure : 1.0,
       visibilityUnits: "", // Metres
@@ -151,7 +151,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
   }  else if (displayFormat === 'nz') {
     results ={
       windSpeed : 1.94384,
-      windSpeedUnits : '',
+      windSpeedUnits : 'KT',
       temperatureUnits : 'C',//celciusToCelcius,
       pressure : 1.0,
       visibilityUnits: "", // Metres
@@ -229,10 +229,9 @@ function icaoNumberStr(n:number,maxDigits:number,roundDown:boolean ){
       result.push({"key":each,"value":j[each]});
     }
   }
-
-
   return result; 
 }
+
 function dumpArray(a:any[]){
   const results = ['Extra Data:'];
   const skipIt = false;
@@ -267,7 +266,7 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
       //METAR_FIELD_KEYS
     const extras = loadExtraData(iwxxmObs);
     var extraAsHTML = dumpArray(extras);
-  
+    
 
     console.log(`extras:${extras}`);
   } catch (e){
@@ -352,7 +351,7 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
     }
 
     const sWindVar = windVarResult.join('');
-    if (sWindVar != '///V///') {
+    if (sWindVar !== '///V///') {
       result.push(` ${sWindVar}`);
     } 
     return result.join('');
@@ -383,6 +382,10 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
       let vvvv = Number(parsedMetar["prevailingVisibility_m"]);
       if (vvvv >= 9999) {
         vvvv = 9999;
+      } else if (vvvv < 1000) {
+        vvvv = Math.floor(vvvv/100) * 100;
+      } else{  
+        vvvv = Math.floor(vvvv/1000) * 1000;
       }
       result = String(vvvv).padStart(4,"0");
     }
@@ -431,7 +434,7 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
     const result = [];
     try {
       if (parsedMetar["cloudGroups"].length === 0) {
-        return '//////' // prob not strictly correct...
+        return 'SKC' // prob not strictly correct... NCD etc
      }
      if (parsedMetar["cloudGroups"].length > 3) {
           console.log('what to do with more than 3 cloud groups..... sod it! ');
@@ -537,9 +540,45 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
   }
 
   function getExtraHTML(){
-    return extraAsHTML
-  }
+
+  //  var table: HTMLTableElement = <HTMLTableElement> document.getElementById("myTable");
+  //</HTMLTableElement>var row = table.insertRow(0);
   
+  return extraAsHTML
+  }
+  /*
+          function renderDataInTheTable(todos) {
+            const mytable = document.getElementById("html-data-table");
+            todos.forEach(todo => {
+                let newRow = document.createElement("tr");
+                Object.values(todo).forEach((value) => {
+                    let cell = document.createElement("td");
+                    cell.innerText = value;
+                    newRow.appendChild(cell);
+                })
+                mytable.appendChild(newRow);
+            });
+        }
+  */
+  function renderDataInTheTable(info:Object[]) {
+    const mytable = document.getElementById("extra-data-table");
+    info.forEach(key => {
+        let newRow = document.createElement("tr");
+        Object.values(key).forEach((value) => {
+            let keyCell = document.createElement("td");
+            keyCell.innerText = value;
+            newRow.appendChild(keyCell);
+            let valCell = document.createElement("td");
+            valCell.innerText = value;
+            newRow.appendChild(valCell);
+            try{
+              //mytable.appendChild(newRow);
+            } catch{}
+        })
+        
+    });
+}
+
   function to_string(){
     const result = [];
     const logg = ['Notes']
@@ -562,10 +601,10 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
         throw `The station ("${parsedMetar['station']}") contains other chars than A-Z so cannot be a valid METAR station code `
       }
       result.push(parsedMetar['station']);
-      result.push(formatTimeDDHHMM());
+      result.push(formatTimeDDHHMM()); // strictly  MM should be mm=00/30
       result.push(formatWind());
       //TODO CAVOK...
-      if (isCAVOK() && displayFormat != 'nz') {
+      if (isCAVOK() && displayFormat !== 'nz') {
         result.push('CAVOK');
       } else{
         result.push(formatViz());
@@ -607,3 +646,16 @@ function is_cccc (st:string) {
 }
 
 export default Metar;
+/*class ModuleTable {
+  table: HTMLTableElement;
+  private thead: HTMLTableElement;
+  private tbody: HTMLTableElement;
+  constructor() {
+    this.table = document.createElement('table');
+    this.thead = <HTMLTableElement> this.table.createTHead();
+    this.tbody = <HTMLTableElement> this.table.createTBody();
+    var hrow = <HTMLTableRowElement> this.table.tHead.insertRow(0);
+    var cell = hrow.insertCell(0);
+    cell.innerHTML = "Module ID";
+  }
+}</HTMLTableRowElement>*/
