@@ -276,7 +276,8 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
   }
 
   function icaoNumberStr2orMore(n:number){
-    let l= Math.max(`${n}`.length,2);
+    let l= Math.max(`${Math.round(n)}`.length,2);
+    console.log(`icaoNumberStr2orMore(${n}) -> l=${l}`)
     return icaoNumberStr(n,l,false);
   }
 
