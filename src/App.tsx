@@ -1,8 +1,10 @@
 import React from 'react';
 import Metar from './Metar';
+import ExtraData from './Metar';
 import defaultIwxxmData from './here_is_some_data.json';
 import JSONMetar from './load_data'
 import './App.css';
+
 
 
 function App() {
@@ -13,9 +15,6 @@ function App() {
 
   const [displayFormat,setFormat] = React.useState('international');
 
-  console.log('isUS',displayFormat);
-  //const cannedMetar= new Metar;
-  //displayFormat = format;
   return (
     
     <div className="App">
@@ -44,8 +43,10 @@ function App() {
             <label>NZ</label>  
   
       <Metar iwxxmObs={iwxxmObs} displayFormat={displayFormat} />
-
-      <table //onChange={() => }
+      {/* <ExtraData iwxxmObs={iwxxmObs} displayFormat={displayFormat}/> */}
+      {/* <ExtraData iwxxmObs={iwxxmObs} /> */}
+      <p>Extra Data:             </p>
+      <table  align={"center"}  onChange={() => {}}
         id = "extra-data-table"
       />       
 
@@ -66,6 +67,6 @@ function App() {
       />
     </div>
   );
-}//style={color:'red'}
+}//style={color:'red'}  // "kiwicount"=12,  14
 //style="color:#FF0000"
 export default App;

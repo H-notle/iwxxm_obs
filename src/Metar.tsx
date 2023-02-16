@@ -1,16 +1,23 @@
-import { ListClassKey } from '@material-ui/core';
+import { ListClassKey, Table } from '@material-ui/core';
 import React from 'react';
+import { forEachChild } from 'typescript';
+//import {useTable} from 'react-table'; 
 //import { keys } from 'ts-transformer-keys';
-import { convertCompilerOptionsFromJson, createSemicolonClassElement, formatDiagnosticsWithColorAndContext } from 'typescript';
-import { resourceLimits } from 'worker_threads';
+//import { convertCompilerOptionsFromJson, createSemicolonClassElement, formatDiagnosticsWithColorAndContext } from 'typescript';
+//import { resourceLimits } from 'worker_threads';
 //import defaultIwxxmData from './here_is_some_data.json';
+
+interface ExtraNonMetarFields{
+  key: string;
+  value: any;
+}
 
 interface CloudGroup {
   cloudKey : ('SCT' | 'FEW' | 'BKN' | 'OVC' | 'NSC');// [];
   flightLevel : number;
   cloudType: ('' | 'TCU' | 'CB');
 }
-interface PresentWeather{
+interface PresentWeather{ 
   code:string;
   locational:string;
   intensity:string;
@@ -60,7 +67,7 @@ interface MetarFields  {
   runwayInfo:RunwayInfo;
   remarks: string;
   trend: string;
-  extras: Record<string, string | number| boolean>;
+  extras: Extra;//Record<string, string | number| boolean>;
 }
 interface Extra {
   key: string | number| boolean | Object;
@@ -85,6 +92,77 @@ const METAR_FIELD_KEYS=  ["datetime",
                     "remarks",
                     "trend"
                     ]
+// from https://www.bekk.christmas/post/2020/22/create-a-generic-table-with-react-and-typescript...
+// type ColumnDefinitionType<T, K extends keyof T> = {
+//     key: K;
+//     header: string;
+//     width?: number;
+// }
+
+// type TableProps<T, K extends keyof T> = {
+//   data: Array<T>;
+//   columns: Array<ColumnDefinitionType<T, K>>;
+// }
+
+// const style = {
+//   borderCollapse: 'collapse'
+// } as const
+
+// type TableHeaderProps<T, K extends keyof T> = {
+//   columns: Array<ColumnDefinitionType<T, K>>;
+// }
+
+// const TableHeader = <T, K extends keyof T>({ columns }: TableHeaderProps<T, K>): JSX.Element => {
+//   const headers = columns.map((column, index) => {
+//     const style = {
+//       width: column.width ?? 100, // 100 is our default value if width is not defined
+//       borderBottom: '2px solid black'
+//     };
+
+//     return (
+//       <th
+//         key={`headCell-${index}`}
+//         style={style}
+//       >
+//         {column.header}
+//       </th>
+//     );
+//   });
+
+//   return (
+//     <thead>
+//       <tr>{headers}</tr>
+//     </thead>
+//   );
+// };
+
+// type TableRowsProps<T, K extends keyof T> = {
+//   data: Array<T>;
+//   columns: Array<ColumnDefinitionType<T, K>>;
+// }
+
+// const TableRows = <T, K extends keyof T>({ data, columns }: TableRowsProps<T, K>): JSX.Element => {
+//   const rows = data.map((row, index) => {
+//     return (
+//       <tr key={`row-${index}`}>
+//         {columns.map((column, index2) => {
+//           return (
+//             <td key={`cell-${index2}`} style={style}>
+//               {row[column.key]}
+//             </td>
+//           );
+//         }
+//         )}
+//       </tr>
+//     );
+//   });
+
+//   return (
+//     <tbody>
+//       {rows}
+//     </tbody>
+//   );
+// };
 
 function celciusToFahrenheit(c:number) : number{
   return (c * 9.0)/5.0 + 32.0; 
@@ -237,7 +315,72 @@ function dumpArray(a:any[]){
 
   return results.join('');
 } 
+/*
+// const ExtraData: React.FC<Props> = ({iwxxmObs, displayFormat}) => {
+const ExtraData: React.FC<Props> = ({iwxxmObs, displayFormat}) :HTMLElement => {
+  const Table = <T, K extends keyof T>({ data, columns }: TableProps<T, K>): JSX.Element => {
+    return (
+      <table style={style}>
+        <TableHeader columns={columns} />
+        <TableRows
+          data={data}
+          columns={columns}
+        />
+      </table>
+    );
+  };
+  var extras = loadExtraData(iwxxmObs);
+  
+  //var extraAsHTML = dumpArray(extras);
+  if (displayFormat){
+    console.log('have displayFormat but not using it');
+  }
+    
+  var extraTable = renderDataInTheTable(extras);
+  if (!extraTable) {
+    extraTable = new HTMLElement;
+  }
+  function renderDataInTheTable(info:any[]) :any {
+    const mytable = document.getElementById("extra-data-table");
+    //const mytable2 = 
+    if (!mytable){
+      console.log(`====>oh! The table does not seem to have any legs!!!! ${mytable}`);
+    }
+    //const mytable = document.createElement("table");
 
+    var tblBody = document.createElement("tbody");   
+    mytable?.appendChild(tblBody);
+    for (const each in info){
+        const key = info[each]["key"];
+        const val = info[each]["value"];
+        console.log(`---->have key ${each} ${key} value: ${val}`);
+
+        let newRow = document.createElement("tr");
+
+        let keyCell = document.createElement("td");
+        keyCell.innerText = key;
+        newRow.appendChild(keyCell);
+        
+        let valCell = document.createElement("td");
+        valCell.innerText = val;
+        newRow.appendChild(valCell);
+        
+        try {
+          tblBody.appendChild(newRow);
+        } catch (e){
+          console.log(`renderDataInTheTable exception adding row #${each} - ${String(e)}`);
+        }
+    };
+  return mytable;
+  }
+  return (
+    // <div>
+    {extraTable}
+
+  //  </div>
+    
+  )
+}*/
 //##########################################################################################
 
 const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
@@ -248,7 +391,14 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
     var extras = loadExtraData(iwxxmObs);
     var extraAsHTML = dumpArray(extras);
     const extraTable = renderDataInTheTable(extras);
-
+    var n = 0
+    //parsedMetar['extras'] = new Record[] <Extras>;
+    for (const each in extras){
+      const k = extras[each]['key'];
+      const v = extras[each]['value'];
+      //parsedMetar['extras'][k] = v;
+      console.log(`loaded #${n} key:"${each}" : val: "${extras[each]}"`);
+    } 
     console.log(`extras:${extras}`);
   } catch (e){
     console.log(`Error loading json data: ${e}`);
@@ -275,8 +425,8 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
     return 10 * Math.round(d/10.0);
   }
 
-  function icaoNumberStr2orMore(n:number){
-    let l= Math.max(`${Math.round(n)}`.length,2);
+  function icaoNumberStr2orMore(n:number){// used for wind/gust where it is normally 2 chars long but can be 3
+    let l= Math.min(Math.max(`${Math.round(n)}`.length,2),3);
     console.log(`icaoNumberStr2orMore(${n}) -> l=${l}`)
     return icaoNumberStr(n,l,false);
   }
@@ -300,7 +450,7 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
     } catch (e) {
       result.push('///');   
     }
-
+    // no checking of wind cf gust values > 5 knots etc  (wait for colour highlighting...)
     try {
       if (parsedMetar["meanWindSpeed_ms"] ){
         result.push(icaoNumberStr2orMore(parsedMetar["meanWindSpeed_ms"]*setUnits['windSpeed']));    
@@ -532,9 +682,30 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
 
   function renderDataInTheTable(info:any[]) {
     const mytable = document.getElementById("extra-data-table");
-    
+    if (!mytable){
+      console.log(`====>oh! The table does not seem to have any legs!!!! ${mytable}`);
+    }
     //const mytable = document.createElement("table");
-    var tblBody = document.createElement("tbody");        
+
+    var tblBody = document.createElement("tbody");   
+
+    mytable?.appendChild(tblBody);
+    //const newTblBody = document.createElement("tbody"); 
+    // mytable?.replaceChild(tblBody,newTblBody);
+    //try{
+      //tblBody.children.forEach((x) => tblBody.remove(x))
+      // for (const child in tblBody){
+      //   tblBody.removeChild(child);
+      // } // "kiwiCount": 123, 132
+      var n = 1;
+      while (tblBody.firstChild) {
+        console.log(`removing a child #${n}`); 
+        tblBody.removeChild(tblBody.firstChild);
+        n = n + 1;
+      }
+    //} catch (e){}
+
+    
     for (const each in info){
         const key = info[each]["key"];
         const val = info[each]["value"];
@@ -556,6 +727,8 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
           console.log(`renderDataInTheTable exception adding row #${each} - ${String(e)}`);
         }
     };
+    //mytable?.appendChild(tblBody);
+    //tblBody = newTblBody;
   //return mytable;
   }
 
@@ -616,7 +789,7 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
   return (
     //<div>METAR AUTO {parsedMetar.meanWindSpeed_ms}</div>
     <div>{to_string()}
-    <p/>{getExtraHTML()}<p/>
+    {/* <p/>{getExtraHTML()}<p/> */}
      {/* {extraTable}  */}
 
    </div>
