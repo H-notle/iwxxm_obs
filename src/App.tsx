@@ -4,27 +4,41 @@ import ExtraData from './Metar';
 import defaultIwxxmData from './here_is_some_data.json';
 import JSONMetar from './load_data'
 import './App.css';
+import MetarEditor from './MetarEditor';
+import MetarFields from './MetarFields';
+import { parseMyMetarFunction } from './ParseMetar';
 
 
 
 function App() {
 
   const [iwxxmObs, setIwxxmObs] = React.useState(JSON.stringify(defaultIwxxmData, null, 2));
-
-  const [jsonObs, setJsonObs] = React.useState('TODO');
+  const [metar, setMetar] = React.useState<MetarFields>();
+  const [validJson, setValidJson] = React.useState(true);
+ 
+  //const [jsonObs, setJsonObs] = React.useState('TODO');
 
   const [displayFormat,setFormat] = React.useState('international');
-
+  React.useEffect(() => {
+    try { 
+      const parsedMetar = parseMyMetarFunction(iwxxmObs);
+      setMetar(parsedMetar);
+      setValidJson(true);
+    } catch{
+      setValidJson(false);
+    }
+  },[iwxxmObs])
   return (
     
     <div className="App">
       <p>Here is some data to play with:</p>
-      <textarea rows={24} cols={60}
-        onChange={(event) => {
-          setIwxxmObs(event.target.value);
-        }}
-        value={iwxxmObs}
-      />
+      <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+        <div>stuff here1</div>
+        <MetarEditor rawData={iwxxmObs} validJson={validJson} onChange={setIwxxmObs} />
+        <div>stuff here2</div>
+      </div>
+
+      
        <p></p>
             <input type="radio" value="international" id="international" 
             checked = {displayFormat === 'international'}
@@ -42,29 +56,22 @@ function App() {
               onChange={()=> setFormat('nz')} name="displayFormat"/>
             <label>NZ</label>  
   
-      <Metar iwxxmObs={iwxxmObs} displayFormat={displayFormat} />
-      {/* <ExtraData iwxxmObs={iwxxmObs} displayFormat={displayFormat}/> */}
-      {/* <ExtraData iwxxmObs={iwxxmObs} /> */}
-      <p>Extra Data:             </p>
-      <table  align={"center"}  onChange={() => {}}
-        id = "extra-data-table"
-      />       
+      {metar && <Metar metar={metar} displayFormat={displayFormat} />}
 
-      {/* <p> TODO get radio button working.....</p> */}
-      <p> TODO fix showing extra stuff......</p>
-      <p> TODO show errors/exceptions......(stop crashing/highlight when json feed data is invalid)</p>
+
+      <p> TODO show errors/exceptions......)</p>
       <p> TODO add TREND data......</p>
       <p> colouring fields......</p>
       <p> adding a/c...... then ...</p>
       <p> map?!!!... multiple obs</p>
       <p>alternative views ...meteorogram</p>
-      <textarea 
+      {/* <textarea 
         onChange={(event) => {
           setJsonObs(event.target.value);
           //Metar.editableData(event.target.value);
         }}
         value={jsonObs}
-      />
+      /> */}
     </div>
   );
 }//style={color:'red'}  // "kiwicount"=12,  14

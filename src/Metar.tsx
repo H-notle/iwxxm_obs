@@ -1,7 +1,10 @@
 import { ListClassKey, Table } from '@material-ui/core';
 import React from 'react';
+
 import { forEachChild } from 'typescript';
+import MetarFields, { CloudGroup } from './MetarFields';
 //import {useTable} from 'react-table'; 
+//import DataTable from "react-data-table-component"
 //import { keys } from 'ts-transformer-keys';
 //import { convertCompilerOptionsFromJson, createSemicolonClassElement, formatDiagnosticsWithColorAndContext } from 'typescript';
 //import { resourceLimits } from 'worker_threads';
@@ -12,19 +15,19 @@ interface ExtraNonMetarFields{
   value: any;
 }
 
-interface CloudGroup {
-  cloudKey : ('SCT' | 'FEW' | 'BKN' | 'OVC' | 'NSC');// [];
-  flightLevel : number;
-  cloudType: ('' | 'TCU' | 'CB');
-}
-interface PresentWeather{ 
-  code:string;
-  locational:string;
-  intensity:string;
-}
+// interface CloudGroup {
+//   cloudKey : ('SCT' | 'FEW' | 'BKN' | 'OVC' | 'NSC');// [];
+//   flightLevel : number;
+//   cloudType: ('' | 'TCU' | 'CB');
+// }
+// interface PresentWeather{ 
+//   code:string;
+//   locational:string;
+//   intensity:string;
+// }
 
 interface Props {
-    iwxxmObs: string;
+    metar: MetarFields;
     displayFormat:string;
 }
 
@@ -41,57 +44,58 @@ interface DisplayUnits{
   temperatureDesc : string;
   pressureDesc :string; 
 }
-interface RunwayInfo{
-    runwayCode : string;
-    wxCode1 : number;
-    wxCode2 : number;
-    runwayState : number;
-}
+// interface RunwayInfo{
+//     runwayCode : string;
+//     wxCode1 : number;
+//     wxCode2 : number;
+//     runwayState : number;
+// }
 
-interface MetarFields  {
-  datetime : string;
-  station : string;
-  flags: string []; //('AUTO' | "WOOZLE" | 'METAR')[]; 
-  meanWindDirection_Deg: number;
-  meanWindSpeed_ms: number;
-  gust_ms: number;
-  extremeClockwiseWindDirection_Deg: number;
-  extremeCounterClockwiseWindDirection_Deg: number;
-  prevailingVisibility_m: number;
-  presentWeather:string;  //TODO only one allowed right now
-  cloudGroups: CloudGroup [];
-  airTemperature_C: number;
-  dewpointTemperature_C: number;
-  qnh_hPa: number;
-  recentWeather:PresentWeather;
-  runwayInfo:RunwayInfo;
-  remarks: string;
-  trend: string;
-  extras: Extra;//Record<string, string | number| boolean>;
-}
-interface Extra {
-  key: string | number| boolean | Object;
-}
+// interface MetarFields  {
+//   datetime : string;
+//   station : string;
+//   flags: string []; //('AUTO' | "WOOZLE" | 'METAR')[]; 
+//   meanWindDirection_Deg: number;
+//   meanWindSpeed_ms: number;
+//   gust_ms: number;
+//   extremeClockwiseWindDirection_Deg: number;
+//   extremeCounterClockwiseWindDirection_Deg: number;
+//   prevailingVisibility_m: number;
+//   presentWeather:string;  //TODO only one allowed right now
+//   cloudGroups: CloudGroup [];
+//   airTemperature_C: number;
+//   dewpointTemperature_C: number;
+//   qnh_hPa: number;
+//   recentWeather:PresentWeather;
+//   runwayInfo:RunwayInfo;
+//   remarks: string;
+//   trend: string;
+//   extras: Record<string, string | number| boolean>;
+// }
+// interface Extra {
+//   key: string ;
+//   value: string | number| boolean | Object;
+// }
 
-const METAR_FIELD_KEYS=  ["datetime",
-                    "station",
-                    "flags",
-                    "meanWindDirection_Deg",
-                    "meanWindSpeed_ms",
-                    "gust_ms",
-                    "extremeClockwiseWindDirection_Deg",
-                    "extremeCounterClockwiseWindDirection_Deg",
-                    "prevailingVisibility_m",
-                    "presentWeather", 
-                    "pastWeather",
-                    "cloudGroups",
-                    "airTemperature_C",
-                    "dewpointTemperature_C",
-                    "qnh_hPa",
-                    "runwayInfo",
-                    "remarks",
-                    "trend"
-                    ]
+// const METAR_FIELD_KEYS=  ["datetime",
+//                     "station",
+//                     "flags",
+//                     "meanWindDirection_Deg",
+//                     "meanWindSpeed_ms",
+//                     "gust_ms",
+//                     "extremeClockwiseWindDirection_Deg",
+//                     "extremeCounterClockwiseWindDirection_Deg",
+//                     "prevailingVisibility_m",
+//                     "presentWeather", 
+//                     "pastWeather",
+//                     "cloudGroups",
+//                     "airTemperature_C",
+//                     "dewpointTemperature_C",
+//                     "qnh_hPa",
+//                     "runwayInfo",
+//                     "remarks",
+//                     "trend"
+//                     ]
 // from https://www.bekk.christmas/post/2020/22/create-a-generic-table-with-react-and-typescript...
 // type ColumnDefinitionType<T, K extends keyof T> = {
 //     key: K;
@@ -242,13 +246,13 @@ function loadUnits(displayFormat:string): DisplayUnits {
   return results;
 }  
 
-function parseMyMetarFunction(textValue: string):MetarFields {
-  try {
-    return JSON.parse(textValue);
-  }catch (e) {
-     throw Error('Error loading json', {cause:e}); 
-  }  
-}
+// function parseMyMetarFunction(textValue: string):MetarFields {
+//   try {
+//     return JSON.parse(textValue);
+//   }catch (e) {
+//      throw Error('Error loading json', {cause:e}); 
+//   }  
+// }
 
 function icaoNumberStr(n:number,maxDigits:number,roundDown:boolean ){
   /* eg
@@ -277,44 +281,44 @@ function icaoNumberStr(n:number,maxDigits:number,roundDown:boolean ){
   }
 }
 
-function loadExtraData(textValue: string){
-    const j = JSON.parse(textValue);
-  const result = new Array();
+// function loadExtraData(textValue: string){
+//     const j = JSON.parse(textValue);
+//   const result = new Array();
  
-  for (const each in j){
+//   for (const each in j){
     
-    if (METAR_FIELD_KEYS.includes(each)){
-      console.log(`getloadExtraData have key "${each}" is a METAR field`);
-    } else{
-      console.log(`getloadExtraData have key "${each}" is NOT a METAR field`);
-      result.push({"key":each,"value":j[each]});
-    }
-  }
-  return result; 
-}
+//     if (METAR_FIELD_KEYS.includes(each)){
+//       console.log(`getloadExtraData have key "${each}" is a METAR field`);
+//     } else{
+//       console.log(`getloadExtraData have key "${each}" is NOT a METAR field`);
+//       result.push({"key":each,"value":j[each]});
+//     }
+//   }
+//   return result; 
+// }
 
-function dumpArray(a:any[]){
-  const results = ['Extra Data:'];
-  const skipIt = false;
-  if (skipIt) {
-    results.push(' TODO!');
-    return results.join('');
-  }
-  results.push('<table>');
-  results.push('<tr>');
-  results.push(`<th>key</th><th>value</th>`);// td?
-  results.push('</tr>');
+// function dumpArray(a:any[]){
+//   const results = ['Extra Data:'];
+//   const skipIt = false;
+//   if (skipIt) {
+//     results.push(' TODO!');
+//     return results.join('');
+//   }
+//   results.push('<table>');
+//   results.push('<tr>');
+//   results.push(`<th>key</th><th>value</th>`);// td?
+//   results.push('</tr>');
 
-  for (const each in a){
-    console.log(`have key ${each} ${a[each]["key"]} value: ${a[each]["value"]}`);
-    results.push('<tr>');
-    results.push(`<td>${a[each]["key"]}</td><td>${a[each]["value"]}</td>`);
-    results.push('</tr>');
-  }
-  results.push('</table>');
+//   for (const each in a){
+//     console.log(`have key ${each} ${a[each]["key"]} value: ${a[each]["value"]}`);
+//     results.push('<tr>');
+//     results.push(`<td>${a[each]["key"]}</td><td>${a[each]["value"]}</td>`);
+//     results.push('</tr>');
+//   }
+//   results.push('</table>');
 
-  return results.join('');
-} 
+//   return results.join('');
+// } 
 /*
 // const ExtraData: React.FC<Props> = ({iwxxmObs, displayFormat}) => {
 const ExtraData: React.FC<Props> = ({iwxxmObs, displayFormat}) :HTMLElement => {
@@ -383,26 +387,24 @@ const ExtraData: React.FC<Props> = ({iwxxmObs, displayFormat}) :HTMLElement => {
 }*/
 //##########################################################################################
 
-const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
+const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
   //const parsedMetar = parseMyMetarFunction(iwxxmObs);
-  try{
-    var parsedMetar = parseMyMetarFunction(iwxxmObs);
+ 
+    var parsedMetar = metar;
      
-    var extras = loadExtraData(iwxxmObs);
-    var extraAsHTML = dumpArray(extras);
-    const extraTable = renderDataInTheTable(extras);
-    var n = 0
+    //var extras = loadExtraData(parsedMetar);
+    //var extraAsHTML = dumpArray(extras);
+    //const extraTable = renderDataInTheTable(metar.extras);
+    // var n = 0
     //parsedMetar['extras'] = new Record[] <Extras>;
-    for (const each in extras){
-      const k = extras[each]['key'];
-      const v = extras[each]['value'];
-      //parsedMetar['extras'][k] = v;
-      console.log(`loaded #${n} key:"${each}" : val: "${extras[each]}"`);
-    } 
-    console.log(`extras:${extras}`);
-  } catch (e){
-    console.log(`Error loading json data: ${e}`);
-  }
+    // for (const each in extras){
+    //   const k = extras[each]['key'];
+    //   const v = extras[each]['value'];
+    //   //parsedMetar['extras'][k] = v;
+    //   console.log(`loaded #${n} key:"${each}" : val: "${extras[each]}"`);
+    // } 
+    // console.log(`extras:${extras}`);
+
   const setUnits = loadUnits(displayFormat);
 
   function formatTimeDDHHMM() {
@@ -672,65 +674,6 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
     return result.join('');
   }
 
-  function getExtraHTML(){
-  //TODO get this working correctly
-  //  var table: HTMLTableElement = <HTMLTableElement> document.getElementById("myTable");
-  //</HTMLTableElement>var row = table.insertRow(0);
-  
-  return extraAsHTML
-  }
-
-  function renderDataInTheTable(info:any[]) {
-    const mytable = document.getElementById("extra-data-table");
-    if (!mytable){
-      console.log(`====>oh! The table does not seem to have any legs!!!! ${mytable}`);
-    }
-    //const mytable = document.createElement("table");
-
-    var tblBody = document.createElement("tbody");   
-
-    mytable?.appendChild(tblBody);
-    //const newTblBody = document.createElement("tbody"); 
-    // mytable?.replaceChild(tblBody,newTblBody);
-    //try{
-      //tblBody.children.forEach((x) => tblBody.remove(x))
-      // for (const child in tblBody){
-      //   tblBody.removeChild(child);
-      // } // "kiwiCount": 123, 132
-      var n = 1;
-      while (tblBody.firstChild) {
-        console.log(`removing a child #${n}`); 
-        tblBody.removeChild(tblBody.firstChild);
-        n = n + 1;
-      }
-    //} catch (e){}
-
-    
-    for (const each in info){
-        const key = info[each]["key"];
-        const val = info[each]["value"];
-        console.log(`---->have key ${each} ${key} value: ${val}`);
-
-        let newRow = document.createElement("tr");
-
-        let keyCell = document.createElement("td");
-        keyCell.innerText = key;
-        newRow.appendChild(keyCell);
-        
-        let valCell = document.createElement("td");
-        valCell.innerText = val;
-        newRow.appendChild(valCell);
-        
-        try {
-          tblBody.appendChild(newRow);
-        } catch (e){
-          console.log(`renderDataInTheTable exception adding row #${each} - ${String(e)}`);
-        }
-    };
-    //mytable?.appendChild(tblBody);
-    //tblBody = newTblBody;
-  //return mytable;
-  }
 
   function to_string(){
     const result = [];
@@ -785,15 +728,33 @@ const Metar: React.FC<Props> = ({ iwxxmObs,displayFormat }) => {
   
     return result.join(' ') ;
   }
-// ' <br>${extraAsHTML}<br>
-  return (
-    //<div>METAR AUTO {parsedMetar.meanWindSpeed_ms}</div>
-    <div>{to_string()}
-    {/* <p/>{getExtraHTML()}<p/> */}
-     {/* {extraTable}  */}
 
-   </div>
-    
+  return (
+  
+    <>
+      <div>
+        {to_string()}
+      {/* <p/>{getExtraHTML()}<p/> */}
+      {/* {extraTable}  */}
+    </div>
+    <div>
+      <br/>
+      <b>Extra data:</b>
+      <table  align={"center"}   
+        id = "extra-data-table" 
+      > 
+       {
+        Object.keys(metar.extras).map((each) => {
+          return (
+            <tr key={each}>
+             <td>{each} </td> 
+             <td>{metar.extras[each]}</td> 
+            </tr>) 
+        })
+       }
+      </table>
+    </div>
+   </>
   )
 };
 function is_cccc (st:string) {
