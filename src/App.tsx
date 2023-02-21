@@ -11,13 +11,15 @@ import MetarFields from './MetarFields';
 import { parseMyMetarFunction } from './ParseMetar';
 //import AircraftPicker from './AircraftPicker';
 import SelectAircraftType from './SelectAircraftType'; 
+import showAircraftProperties from './showAircraftProperties';
 
 
 function App() {
+  const initialAC = 'ToDo' 
   const [iwxxmObs, setIwxxmObs] = React.useState(JSON.stringify(defaultIwxxmData, null, 2));
   const [metar, setMetar] = React.useState<MetarFields>();
   const [validJson, setValidJson] = React.useState(true);
-  const [chosenType,setAircraftType] = React.useState('None');
+  const [chosenType,setAircraftType] = React.useState(initialAC);
  
   //const [jsonObs, setJsonObs] = React.useState('TODO');
 
@@ -37,9 +39,10 @@ function App() {
     <div className="App">
       <p>Here is some data to play with:</p>
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-
-        <SelectAircraftType aircraftNames={aircraftNames} onChange={setAircraftType}/>
-
+        <div style={{ display: 'flex', flexDirection:'column'  }}> 
+          <SelectAircraftType aircraftNames={aircraftNames} onChange={setAircraftType}/>
+          {/* <showAircraftProperties acType={chosenType} fields={aircraftTypes[chosenType]}/>  */}
+        </div>
         <MetarEditor rawData={iwxxmObs} validJson={validJson} onChange={setIwxxmObs} />
         <div>select runway Here</div>
       </div>

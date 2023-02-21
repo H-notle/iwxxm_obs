@@ -18,5 +18,9 @@
   "None": {
     "crosswindMax": 999999,
     "maxheadwind": 0
-    }
+    },
+    "ToDo": {
+      "crosswindMax": 0,
+      "maxheadwind": -1
+      }
 }
