@@ -2,19 +2,22 @@ import React from 'react';
 import Metar from './Metar';
 import ExtraData from './Metar';
 import defaultIwxxmData from './here_is_some_data.json';
+import aircraftTypes from './aircraftTypes.json';
+
 import JSONMetar from './load_data'
 import './App.css';
 import MetarEditor from './MetarEditor';
 import MetarFields from './MetarFields';
 import { parseMyMetarFunction } from './ParseMetar';
-
+//import AircraftPicker from './AircraftPicker';
+import SelectAircraftType from './SelectAircraftType'; 
 
 
 function App() {
-
   const [iwxxmObs, setIwxxmObs] = React.useState(JSON.stringify(defaultIwxxmData, null, 2));
   const [metar, setMetar] = React.useState<MetarFields>();
   const [validJson, setValidJson] = React.useState(true);
+  const [chosenType,setAircraftType] = React.useState('None');
  
   //const [jsonObs, setJsonObs] = React.useState('TODO');
 
@@ -28,14 +31,17 @@ function App() {
       setValidJson(false);
     }
   },[iwxxmObs])
+  const aircraftNames = Object.keys(aircraftTypes)
   return (
     
     <div className="App">
       <p>Here is some data to play with:</p>
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-        <div>stuff here1</div>
+
+        <SelectAircraftType aircraftNames={aircraftNames} onChange={setAircraftType}/>
+
         <MetarEditor rawData={iwxxmObs} validJson={validJson} onChange={setIwxxmObs} />
-        <div>stuff here2</div>
+        <div>select runway Here</div>
       </div>
 
       
@@ -58,7 +64,7 @@ function App() {
   
       {metar && <Metar metar={metar} displayFormat={displayFormat} />}
 
-
+      <p>ac type={chosenType}</p>
       <p> TODO show errors/exceptions......)</p>
       <p> TODO add TREND data......</p>
       <p> colouring fields......</p>

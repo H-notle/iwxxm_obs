@@ -1,0 +1,22 @@
+{
+  "Tiger Moth": {
+    "crosswindMax": 10,
+    "maxheadwind":20
+    },
+  "Paper Dart": {
+    "crosswindMax": 3,
+    "maxheadwind":5
+    },
+  "Brick": {
+    "crosswindMax": 9999,
+    "maxheadwind":9999
+    },
+  "Dakota": {
+    "crosswindMax": 40,
+    "maxheadwind":20
+    },
+  "None": {
+    "crosswindMax": 999999,
+    "maxheadwind": 0
+    }
+}

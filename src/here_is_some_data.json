@@ -1,6 +1,6 @@
 {
 "type":"OBSERVATION",
-"flags": ["METAR","NOODLES","AUTO"],
+"flags": ["METAR","SYNOP","AUTO"],
 "datetime":"2022-12-15T05:00:00Z",
 "station" : "NZHB",
 "airTemperature_C":27.3,

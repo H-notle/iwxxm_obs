@@ -388,23 +388,7 @@ const ExtraData: React.FC<Props> = ({iwxxmObs, displayFormat}) :HTMLElement => {
 //##########################################################################################
 
 const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
-  //const parsedMetar = parseMyMetarFunction(iwxxmObs);
- 
-    var parsedMetar = metar;
-     
-    //var extras = loadExtraData(parsedMetar);
-    //var extraAsHTML = dumpArray(extras);
-    //const extraTable = renderDataInTheTable(metar.extras);
-    // var n = 0
-    //parsedMetar['extras'] = new Record[] <Extras>;
-    // for (const each in extras){
-    //   const k = extras[each]['key'];
-    //   const v = extras[each]['value'];
-    //   //parsedMetar['extras'][k] = v;
-    //   console.log(`loaded #${n} key:"${each}" : val: "${extras[each]}"`);
-    // } 
-    // console.log(`extras:${extras}`);
-
+  var parsedMetar = metar;   
   const setUnits = loadUnits(displayFormat);
 
   function formatTimeDDHHMM() {
@@ -466,15 +450,12 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
       result.push('//'); 
     }
     const windVarResult = [];
-    //try{
+
     if (parsedMetar["extremeCounterClockwiseWindDirection_Deg"]){
       windVarResult.push(icaoNumberStr(dirRoundTo10Deg(parsedMetar["extremeCounterClockwiseWindDirection_Deg"]),3,false));
     } else {
       windVarResult.push('///');
     }
-    //} catch (e){
-    //  windVarResult.push('///');
-    //}
 
     windVarResult.push('V');
 
@@ -570,7 +551,7 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
       return 'NSC' 
      } // should prob. error if there is another cloud group along with NSC
      if (parsedMetar["cloudGroups"].length > 3) {
-          console.log('what to do with more than 3 cloud groups..... sod it! ');
+          console.log('what to do with more than 3 cloud groups..... sod it (can\'t show them all! ');
           return '////// ////// //////'
        }
       for (const each of parsedMetar["cloudGroups"]){
@@ -581,49 +562,8 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
     }
     return result.join(' ')
   }
-  function formatTemp(tt : number){
-    const result = [];
-    try {
-       var t = tt;
-       var maxdigits=2;
-
-       if (setUnits['temperatureUnits'] ==='F') {
-          t = celciusToFahrenheit(t);
-          maxdigits = 3;
-       } else if (setUnits['temperatureUnits'] ==='K') {
-          t = celciusToKelvin(t);
-          maxdigits = 3;
-       }
-
-       if (t < 0){
-        result.push('M');
-        t = -t;
-       } 
-       result.push(icaoNumberStr(t,maxdigits,false))
-       
-    } catch (e){
-       result.push('//');
-    }  
-
-    return result.join('');
-  }
-
-  function formatTemps(){
-    const tt = parsedMetar["airTemperature_C"];
-    const td = parsedMetar["dewpointTemperature_C"];
-    const result = [];
-    result.push(formatTemp(tt));
-    result.push('/');
-    result.push(formatTemp(td));
-    if (!['','C'].includes(setUnits['temperatureUnits'])) {
-      result.push(setUnits['temperatureUnits']);
-    }
-    return result.join('');
-  } 
-
-
   function formatPressure() {
-/*for scientific ...maybe  MSLP*/
+  /*for scientific ...maybe  MSLP*/
     const result = [];
     console.log(` formatPressure WS=${parsedMetar["qnh_hPa"]} out units= ${setUnits['pressureUnits']}`)
     if (setUnits['pressureUnits'] === 'inHg'){
@@ -645,6 +585,55 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
     return result.join('');
   }
 
+  function formatRunwayState(){
+    const result = [];
+    result.push(`${parsedMetar['runwayInfo']['runwayCode']}`);
+    result.push(`${parsedMetar['runwayInfo']['wxCode1']}`);
+    result.push(`${parsedMetar['runwayInfo']['wxCode2']}`);
+    result.push(`${parsedMetar['runwayInfo']['runwayState']}`);
+    return result.join('');
+  }
+
+  function formatTemp(tt : number){
+    const result = [];
+    try {
+       var t = tt;
+       var maxdigits=2;
+
+       if (setUnits['temperatureUnits'] ==='F') {
+          t = celciusToFahrenheit(t);
+          maxdigits = 3;
+       } else if (setUnits['temperatureUnits'] ==='K') {
+          t = celciusToKelvin(t);
+          maxdigits = 3;
+       }
+
+       if (t < 0){
+        result.push('M');
+        t = -t;
+       } 
+       result.push(icaoNumberStr(t,maxdigits,false));
+    } catch (e){
+       result.push('//');
+    }  
+    return result.join('');
+  }
+
+  
+
+  function formatTemps(){
+    const tt = parsedMetar["airTemperature_C"];
+    const td = parsedMetar["dewpointTemperature_C"];
+    const result = [];
+    result.push(formatTemp(tt));
+    result.push('/');
+    result.push(formatTemp(td));
+    if (!['','C'].includes(setUnits['temperatureUnits'])) {
+      result.push(setUnits['temperatureUnits']);
+    }
+    return result.join('');
+  } 
+
   function isCAVOK():boolean {
     var result = true;
     for (const each of parsedMetar["cloudGroups"]){
@@ -665,16 +654,6 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
     return result;
   }
 
-  function formatRunwayState(){
-    const result = [];
-    result.push(`${parsedMetar['runwayInfo']['runwayCode']}`);
-    result.push(`${parsedMetar['runwayInfo']['wxCode1']}`);
-    result.push(`${parsedMetar['runwayInfo']['wxCode2']}`);
-    result.push(`${parsedMetar['runwayInfo']['runwayState']}`);
-    return result.join('');
-  }
-
-
   function to_string(){
     const result = [];
     const logg = ['Notes']
@@ -685,6 +664,7 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
           result.push('(notReallyA)METAR')
         } else {
           result.push('METAR');
+          //TODO decide any logic to do with SPECI is it relevant any more 
         }
         if (parsedMetar['flags'].includes('AUTO')){
           result.push('AUTO');
@@ -697,7 +677,7 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
         throw `The station ("${parsedMetar['station']}") contains other chars than A-Z so cannot be a valid METAR station code `
       }
       result.push(parsedMetar['station']);
-      result.push(formatTimeDDHHMM()); // strictly  MM should be mm=00/30
+      result.push(formatTimeDDHHMM()); // strictly  MM should be mm=00/30 for METAR
       result.push(formatWind());
       // 
       if (isCAVOK() && displayFormat !== 'nz') {
