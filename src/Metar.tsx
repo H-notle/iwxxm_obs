@@ -1,4 +1,5 @@
 import { ListClassKey, Table } from '@material-ui/core';
+import { blue } from '@material-ui/core/colors';
 import React from 'react';
 
 import { forEachChild } from 'typescript';
@@ -387,6 +388,42 @@ const ExtraData: React.FC<Props> = ({iwxxmObs, displayFormat}) :HTMLElement => {
 }*/
 //##########################################################################################
 
+function checkWithin(n:string,minN:number,maxN:number): boolean {
+  let result = false;
+  if ([1,2].includes(n.length)) {
+    try {
+      const intN = parseInt(n); 
+      if (intN >= minN && intN <= maxN){
+        result = true;
+      }
+    }catch {}
+  }
+  return result;
+}
+function validDayOfMonth(y:string,m:string,d:string):boolean{
+  //
+  let result = false;
+  try{
+    const iy = Number(y);
+
+    const im = Number(m);
+    const id = Number(d);
+    if (im >= 1 && im <= 12){
+      let daysInM = 31; 
+      if (im === 2){
+        if (Math.floor(iy /4.0) * 4.0 === iy){ // bugger the century rule
+          daysInM=29
+        } else{
+          daysInM=28;
+        };
+      }
+      if ([4,6,9,11].includes(im)) {daysInM=30};
+      console.log(`validDayOfMonth(${y},${m},${d}) -> daysInM = ${daysInM}`)
+      if (id <= daysInM) {result = true} ;
+    }
+  } catch {};
+  return result;
+} 
 const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
   var parsedMetar = metar;   
   const setUnits = loadUnits(displayFormat);
@@ -397,14 +434,32 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
     const dt = parsedMetar['datetime'].split('T');
     const date = dt[0];
     const time = dt[1].split(':');
+    
     let dd = date.split('-')[2];
     let hh = time[0];
     let mm = time[1];
-    if (dd.length === 1) {dd= '0'+dd} ;
-    if (hh.length === 1) {hh= '0'+hh} ;
-    if (mm.length === 1) {mm= '0'+mm};
+    let finaldd = '//';
+    const month = Number(date.split('-')[1]);
+    if (validDayOfMonth(date.split('-')[0],date.split('-')[1],dd)) { //MONTHS[month])){       
+      finaldd = dd;
+      if (finaldd.length === 1) {finaldd= '0'+finaldd} ;
+    } else{
+      // prob should invalidate the whole date time field  
+    }
+    
+    let finalhh = '//';
+    if (checkWithin(hh,0,23)){
+      finalhh = hh;
+      if (finalhh.length === 1) {finalhh= '0'+finalhh} ;
+    }
+    let finalmm = '//';
+    if (checkWithin(mm,0,59)){
+      finalmm = mm;
+      if (finalmm.length === 1) {finalmm= '0'+finalmm} ;
+    }
 
-    return dd+hh+mm;
+
+    return finaldd+finalhh+finalmm;
   }
 
   function dirRoundTo10Deg(d:number) : number {
@@ -712,8 +767,10 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
   return (
   
     <>
-      <div>
+      <div >
+
         {to_string()}
+   
       {/* <p/>{getExtraHTML()}<p/> */}
       {/* {extraTable}  */}
     </div>

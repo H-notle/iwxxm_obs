@@ -27,6 +27,8 @@
     }
     ],
 "seagullCount":12,
+"kiwiCount": 2,
+"kiwiColour": "boringbrown",
 "runwayInfo":{
     "runwayCode":"36L",
     "wxCode1":4,

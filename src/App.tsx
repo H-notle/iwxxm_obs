@@ -67,13 +67,13 @@ function App() {
   
       {metar && <Metar metar={metar} displayFormat={displayFormat} />}
 
-      <p>ac type={chosenType}</p>
+      {/* <p>ac type={chosenType}</p>
       <p> TODO show errors/exceptions......)</p>
       <p> TODO add TREND data......</p>
       <p> colouring fields......</p>
       <p> adding a/c...... then ...</p>
       <p> map?!!!... multiple obs</p>
-      <p>alternative views ...meteorogram</p>
+      <p>alternative views ...meteorogram</p> */}
       {/* <textarea 
         onChange={(event) => {
           setJsonObs(event.target.value);
