@@ -4,28 +4,12 @@ import React from 'react';
 
 import { forEachChild } from 'typescript';
 import MetarFields, { CloudGroup } from './MetarFields';
-//import {useTable} from 'react-table'; 
-//import DataTable from "react-data-table-component"
-//import { keys } from 'ts-transformer-keys';
-//import { convertCompilerOptionsFromJson, createSemicolonClassElement, formatDiagnosticsWithColorAndContext } from 'typescript';
-//import { resourceLimits } from 'worker_threads';
-//import defaultIwxxmData from './here_is_some_data.json';
+
 
 interface ExtraNonMetarFields{
   key: string;
   value: any;
 }
-
-// interface CloudGroup {
-//   cloudKey : ('SCT' | 'FEW' | 'BKN' | 'OVC' | 'NSC');// [];
-//   flightLevel : number;
-//   cloudType: ('' | 'TCU' | 'CB');
-// }
-// interface PresentWeather{ 
-//   code:string;
-//   locational:string;
-//   intensity:string;
-// }
 
 interface Props {
     metar: MetarFields;
@@ -45,129 +29,7 @@ interface DisplayUnits{
   temperatureDesc : string;
   pressureDesc :string; 
 }
-// interface RunwayInfo{
-//     runwayCode : string;
-//     wxCode1 : number;
-//     wxCode2 : number;
-//     runwayState : number;
-// }
 
-// interface MetarFields  {
-//   datetime : string;
-//   station : string;
-//   flags: string []; //('AUTO' | "WOOZLE" | 'METAR')[]; 
-//   meanWindDirection_Deg: number;
-//   meanWindSpeed_ms: number;
-//   gust_ms: number;
-//   extremeClockwiseWindDirection_Deg: number;
-//   extremeCounterClockwiseWindDirection_Deg: number;
-//   prevailingVisibility_m: number;
-//   presentWeather:string;  //TODO only one allowed right now
-//   cloudGroups: CloudGroup [];
-//   airTemperature_C: number;
-//   dewpointTemperature_C: number;
-//   qnh_hPa: number;
-//   recentWeather:PresentWeather;
-//   runwayInfo:RunwayInfo;
-//   remarks: string;
-//   trend: string;
-//   extras: Record<string, string | number| boolean>;
-// }
-// interface Extra {
-//   key: string ;
-//   value: string | number| boolean | Object;
-// }
-
-// const METAR_FIELD_KEYS=  ["datetime",
-//                     "station",
-//                     "flags",
-//                     "meanWindDirection_Deg",
-//                     "meanWindSpeed_ms",
-//                     "gust_ms",
-//                     "extremeClockwiseWindDirection_Deg",
-//                     "extremeCounterClockwiseWindDirection_Deg",
-//                     "prevailingVisibility_m",
-//                     "presentWeather", 
-//                     "pastWeather",
-//                     "cloudGroups",
-//                     "airTemperature_C",
-//                     "dewpointTemperature_C",
-//                     "qnh_hPa",
-//                     "runwayInfo",
-//                     "remarks",
-//                     "trend"
-//                     ]
-// from https://www.bekk.christmas/post/2020/22/create-a-generic-table-with-react-and-typescript...
-// type ColumnDefinitionType<T, K extends keyof T> = {
-//     key: K;
-//     header: string;
-//     width?: number;
-// }
-
-// type TableProps<T, K extends keyof T> = {
-//   data: Array<T>;
-//   columns: Array<ColumnDefinitionType<T, K>>;
-// }
-
-// const style = {
-//   borderCollapse: 'collapse'
-// } as const
-
-// type TableHeaderProps<T, K extends keyof T> = {
-//   columns: Array<ColumnDefinitionType<T, K>>;
-// }
-
-// const TableHeader = <T, K extends keyof T>({ columns }: TableHeaderProps<T, K>): JSX.Element => {
-//   const headers = columns.map((column, index) => {
-//     const style = {
-//       width: column.width ?? 100, // 100 is our default value if width is not defined
-//       borderBottom: '2px solid black'
-//     };
-
-//     return (
-//       <th
-//         key={`headCell-${index}`}
-//         style={style}
-//       >
-//         {column.header}
-//       </th>
-//     );
-//   });
-
-//   return (
-//     <thead>
-//       <tr>{headers}</tr>
-//     </thead>
-//   );
-// };
-
-// type TableRowsProps<T, K extends keyof T> = {
-//   data: Array<T>;
-//   columns: Array<ColumnDefinitionType<T, K>>;
-// }
-
-// const TableRows = <T, K extends keyof T>({ data, columns }: TableRowsProps<T, K>): JSX.Element => {
-//   const rows = data.map((row, index) => {
-//     return (
-//       <tr key={`row-${index}`}>
-//         {columns.map((column, index2) => {
-//           return (
-//             <td key={`cell-${index2}`} style={style}>
-//               {row[column.key]}
-//             </td>
-//           );
-//         }
-//         )}
-//       </tr>
-//     );
-//   });
-
-//   return (
-//     <tbody>
-//       {rows}
-//     </tbody>
-//   );
-// };
 
 function celciusToFahrenheit(c:number) : number{
   return (c * 9.0)/5.0 + 32.0; 
@@ -247,13 +109,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
   return results;
 }  
 
-// function parseMyMetarFunction(textValue: string):MetarFields {
-//   try {
-//     return JSON.parse(textValue);
-//   }catch (e) {
-//      throw Error('Error loading json', {cause:e}); 
-//   }  
-// }
+
 
 function icaoNumberStr(n:number,maxDigits:number,roundDown:boolean ){
   /* eg
@@ -282,111 +138,6 @@ function icaoNumberStr(n:number,maxDigits:number,roundDown:boolean ){
   }
 }
 
-// function loadExtraData(textValue: string){
-//     const j = JSON.parse(textValue);
-//   const result = new Array();
- 
-//   for (const each in j){
-    
-//     if (METAR_FIELD_KEYS.includes(each)){
-//       console.log(`getloadExtraData have key "${each}" is a METAR field`);
-//     } else{
-//       console.log(`getloadExtraData have key "${each}" is NOT a METAR field`);
-//       result.push({"key":each,"value":j[each]});
-//     }
-//   }
-//   return result; 
-// }
-
-// function dumpArray(a:any[]){
-//   const results = ['Extra Data:'];
-//   const skipIt = false;
-//   if (skipIt) {
-//     results.push(' TODO!');
-//     return results.join('');
-//   }
-//   results.push('<table>');
-//   results.push('<tr>');
-//   results.push(`<th>key</th><th>value</th>`);// td?
-//   results.push('</tr>');
-
-//   for (const each in a){
-//     console.log(`have key ${each} ${a[each]["key"]} value: ${a[each]["value"]}`);
-//     results.push('<tr>');
-//     results.push(`<td>${a[each]["key"]}</td><td>${a[each]["value"]}</td>`);
-//     results.push('</tr>');
-//   }
-//   results.push('</table>');
-
-//   return results.join('');
-// } 
-/*
-// const ExtraData: React.FC<Props> = ({iwxxmObs, displayFormat}) => {
-const ExtraData: React.FC<Props> = ({iwxxmObs, displayFormat}) :HTMLElement => {
-  const Table = <T, K extends keyof T>({ data, columns }: TableProps<T, K>): JSX.Element => {
-    return (
-      <table style={style}>
-        <TableHeader columns={columns} />
-        <TableRows
-          data={data}
-          columns={columns}
-        />
-      </table>
-    );
-  };
-  var extras = loadExtraData(iwxxmObs);
-  
-  //var extraAsHTML = dumpArray(extras);
-  if (displayFormat){
-    console.log('have displayFormat but not using it');
-  }
-    
-  var extraTable = renderDataInTheTable(extras);
-  if (!extraTable) {
-    extraTable = new HTMLElement;
-  }
-  function renderDataInTheTable(info:any[]) :any {
-    const mytable = document.getElementById("extra-data-table");
-    //const mytable2 = 
-    if (!mytable){
-      console.log(`====>oh! The table does not seem to have any legs!!!! ${mytable}`);
-    }
-    //const mytable = document.createElement("table");
-
-    var tblBody = document.createElement("tbody");   
-    mytable?.appendChild(tblBody);
-    for (const each in info){
-        const key = info[each]["key"];
-        const val = info[each]["value"];
-        console.log(`---->have key ${each} ${key} value: ${val}`);
-
-        let newRow = document.createElement("tr");
-
-        let keyCell = document.createElement("td");
-        keyCell.innerText = key;
-        newRow.appendChild(keyCell);
-        
-        let valCell = document.createElement("td");
-        valCell.innerText = val;
-        newRow.appendChild(valCell);
-        
-        try {
-          tblBody.appendChild(newRow);
-        } catch (e){
-          console.log(`renderDataInTheTable exception adding row #${each} - ${String(e)}`);
-        }
-    };
-  return mytable;
-  }
-  return (
-    // <div>
-    {extraTable}
-
-  //  </div>
-    
-  )
-}*/
-//##########################################################################################
 
 function checkWithin(n:string,minN:number,maxN:number): boolean {
   let result = false;
@@ -411,7 +162,10 @@ function validDayOfMonth(y:string,m:string,d:string):boolean{
     if (im >= 1 && im <= 12){
       let daysInM = 31; 
       if (im === 2){
-        if (Math.floor(iy /4.0) * 4.0 === iy){ // bugger the century rule
+        if (Math.floor(iy /100.0) * 100.0 === iy){ // bugger the millenium rule
+          daysInM=28
+
+        } else if (Math.floor(iy /4.0) * 4.0 === iy){ 
           daysInM=29
         } else{
           daysInM=28;
@@ -626,7 +380,7 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
     } else{
       result.push('Q');
     }
-
+//TODO  if < 950 or > 1050 (check the rules) ...prob should be //// 
     try{
       var p = parsedMetar['qnh_hPa']
       if (!p){//(Number.isNaN(p)){

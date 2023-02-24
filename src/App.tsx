@@ -3,6 +3,7 @@ import Metar from './Metar';
 import ExtraData from './Metar';
 import defaultIwxxmData from './here_is_some_data.json';
 import aircraftTypes from './aircraftTypes.json';
+import runwayInfoStr from './runwayInfo.json'; 
 
 import JSONMetar from './load_data'
 import './App.css';
@@ -11,15 +12,19 @@ import MetarFields from './MetarFields';
 import { parseMyMetarFunction } from './ParseMetar';
 //import AircraftPicker from './AircraftPicker';
 import SelectAircraftType from './SelectAircraftType'; 
+
 import showAircraftProperties from './showAircraftProperties';
+import SelectRunway from './landing';
 
 
 function App() {
-  const initialAC = 'ToDo' 
+  const initialAC = 'ToDo' ;
+  const initalRW  = 'None';
   const [iwxxmObs, setIwxxmObs] = React.useState(JSON.stringify(defaultIwxxmData, null, 2));
   const [metar, setMetar] = React.useState<MetarFields>();
   const [validJson, setValidJson] = React.useState(true);
-  const [chosenType,setAircraftType] = React.useState(initialAC);
+  const [chosenType, setAircraftType] = React.useState(initialAC);
+  const [chosenRunway, setRunway] = React.useState(initalRW);
  
   //const [jsonObs, setJsonObs] = React.useState('TODO');
 
@@ -40,11 +45,18 @@ function App() {
       <p>Here is some data to play with:</p>
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
         <div style={{ display: 'flex', flexDirection:'column'  }}> 
-          <SelectAircraftType aircraftNames={aircraftNames} onChange={setAircraftType}/>
-          {/* <showAircraftProperties acType={chosenType} fields={aircraftTypes[chosenType]}/>  */}
+          
+          <SelectAircraftType aircraftTypes={JSON.stringify(aircraftTypes,null,2)} aircraftNames={aircraftNames} aircraftType={chosenType} onChange={setAircraftType} />
+          
         </div>
-        <MetarEditor rawData={iwxxmObs} validJson={validJson} onChange={setIwxxmObs} />
-        <div>select runway Here</div>
+
+          <MetarEditor rawData={iwxxmObs} validJson={validJson} onChange={setIwxxmObs} />
+
+        <div>
+
+          <SelectRunway  runwayInfoStr= {JSON.stringify(runwayInfoStr,null,2)} chosenRunway = {chosenRunway} onChange={setRunway} />
+
+        </div>
       </div>
 
       
@@ -65,10 +77,12 @@ function App() {
               onChange={()=> setFormat('nz')} name="displayFormat"/>
             <label>NZ</label>  
   
+
       {metar && <Metar metar={metar} displayFormat={displayFormat} />}
 
-      {/* <p>ac type={chosenType}</p>
-      <p> TODO show errors/exceptions......)</p>
+
+      <p>ac type={chosenType}</p>
+      {/*<p> TODO show errors/exceptions......)</p>
       <p> TODO add TREND data......</p>
       <p> colouring fields......</p>
       <p> adding a/c...... then ...</p>

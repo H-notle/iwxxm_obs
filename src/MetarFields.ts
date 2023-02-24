@@ -35,6 +35,19 @@ interface MetarFields  {
     wxCode2 : number;
     runwayState : number;
 }
+
+  export interface AircraftInfo{
+    crosswindMax: number;    
+    minimumPressure_hPa : number;  
+    maximumPressure_hPa : number;  
+    maxheadwind :number;  
+  }
+
+  export interface RunwayInfo {
+    orientation_deg : number;
+    length_m : number;
+    height_ft: number;
+  }
 export const METAR_FIELD_KEYS=  [ //(keyof MetarFields)[] = 
     "datetime",
     "station",

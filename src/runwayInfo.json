@@ -1,0 +1,18 @@
+{
+    "None":{
+        "orientation_deg":90,
+        "length_m": 0
+    },
+    "Runway-90":{
+        "orientation_deg":90.0,
+        "length_m": 1500 
+    },
+    "Runway-270":{
+        "orientation_deg":270.0,
+        "length_m": 1500 
+    },
+    "Taxiway-00":{
+        "orientation_deg":0.0,
+        "length_m": 200 
+    }
+}
