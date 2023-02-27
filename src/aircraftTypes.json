@@ -33,8 +33,8 @@
     },
     "ToDo": {
       "crosswindMax": 0,    
-      "minimumPressure_hPa": 900,
-      "maximumPressure_hPa": 1100,
+      "minimumPressure_hPa": 0,
+      "maximumPressure_hPa": 0,
       "maxheadwind_kt": -1
       }
 }

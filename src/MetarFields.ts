@@ -19,35 +19,41 @@ interface MetarFields  {
     trend: string;
     extras: Record<string, string | number| boolean>;
   }
-  export interface CloudGroup {
-    cloudKey : ('SCT' | 'FEW' | 'BKN' | 'OVC' | 'NSC');// [];
-    flightLevel : number;
-    cloudType: ('' | 'TCU' | 'CB');
+export interface CloudGroup {
+  cloudKey : ('SCT' | 'FEW' | 'BKN' | 'OVC' | 'NSC');// [];
+  flightLevel : number;
+  cloudType: ('' | 'TCU' | 'CB');
   }
-  export interface PresentWeather{ 
-    code:string;
-    locational:string;
-    intensity:string;
+export interface PresentWeather{ 
+  code:string;
+  locational:string;
+  intensity:string;
   }
-  export interface RunwayInfo{
-    runwayCode : string;
-    wxCode1 : number;
-    wxCode2 : number;
-    runwayState : number;
+export interface RunwayInfo{
+  runwayCode : string;
+  wxCode1 : number;
+  wxCode2 : number;
+  runwayState : number;
 }
 
-  export interface AircraftInfo{
-    crosswindMax: number;    
-    minimumPressure_hPa : number;  
-    maximumPressure_hPa : number;  
-    maxheadwind :number;  
+export interface AircraftInfo{
+  crosswindMax: number;    
+  minimumPressure_hPa : number;  
+  maximumPressure_hPa : number;  
+  maxheadwind :number;  
   }
 
-  export interface RunwayInfo {
-    orientation_deg : number;
-    length_m : number;
-    height_ft: number;
+export interface RunwayInfo {
+  orientation_deg : number;
+  length_m : number;
+  height_ft: number;
   }
+export interface StandardisedData{
+  key: string;
+  value: number;
+  units: string; //['hPa','m','ft',]
+  }
+
 export const METAR_FIELD_KEYS=  [ //(keyof MetarFields)[] = 
     "datetime",
     "station",
@@ -67,5 +73,5 @@ export const METAR_FIELD_KEYS=  [ //(keyof MetarFields)[] =
     "runwayInfo",
     "remarks",
     "trend"
-];
+  ];
   export default  MetarFields;

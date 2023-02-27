@@ -47,7 +47,11 @@ function App() {
         <div style={{ display: 'flex', flexDirection:'column'  }}> 
           
           <SelectAircraftType aircraftTypes={JSON.stringify(aircraftTypes,null,2)} aircraftNames={aircraftNames} aircraftType={chosenType} onChange={setAircraftType} />
-          
+          <br/>V
+          <br/>|
+          <br/>|
+          <br/>v<br/>
+          (this data not used anywhere yet)
         </div>
 
           <MetarEditor rawData={iwxxmObs} validJson={validJson} onChange={setIwxxmObs} />

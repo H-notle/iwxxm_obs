@@ -8,6 +8,12 @@ interface runwayInfoProps{
   onChange:(chosenRunway:string) => void;
   }
 
+// interface standardisedDataProps{
+//   key: string;
+//   value: number;
+//   units: string;
+// }
+// const result = new Array();
 
 const SelectRunway:  React.FC<runwayInfoProps> = ({ runwayInfoStr, chosenRunway, onChange }) => {
   const runwayInfo =  JSON.parse(runwayInfoStr);
@@ -15,6 +21,7 @@ const SelectRunway:  React.FC<runwayInfoProps> = ({ runwayInfoStr, chosenRunway,
   const thisRunwayInfo = runwayInfo[chosenRunway];
   const runwayNames = Object.keys(runwayInfo)//runwayInfo.keys; //<runwayInfo className="keys"></runwayInfo>
   console.log(`SelectRunway(...) this Runway=${JSON.stringify(thisRunwayInfo,null,2)}`);
+  // const standardisedData = Array(standardisedDataProps)
   return  (    
     <>
       <div > 
@@ -29,7 +36,7 @@ const SelectRunway:  React.FC<runwayInfoProps> = ({ runwayInfoStr, chosenRunway,
       />
        
       </div> 
-      <div>Runway :{chosenRunway}</div>
+      {/* <div>Runway :{chosenRunway}</div> */}
       <div >
          {/* {JSON.stringify(thisRunwayInfo, null, 2)} */}
         {Object.keys(runwayInfo[chosenRunway]).map((each) => {
@@ -40,6 +47,10 @@ const SelectRunway:  React.FC<runwayInfoProps> = ({ runwayInfoStr, chosenRunway,
             </tr>) 
           }
         )}
+          <br/>|
+          <br/>|
+          <br/>V<br/>
+          (this data not used anywhere yet)
       </div> 
     </>
   );
