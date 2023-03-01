@@ -7,6 +7,7 @@ interface MetarFields  {
     gust_ms: number;
     extremeClockwiseWindDirection_Deg: number;
     extremeCounterClockwiseWindDirection_Deg: number;
+    //TODO runway specific viz
     prevailingVisibility_m: number;
     presentWeather:string;  //TODO only one allowed right now
     cloudGroups: CloudGroup [];
@@ -20,9 +21,10 @@ interface MetarFields  {
     extras: Record<string, string | number| boolean>;
   }
 export interface CloudGroup {
-  cloudKey : ('SCT' | 'FEW' | 'BKN' | 'OVC' | 'NSC');// [];
-  flightLevel : number;
-  cloudType: ('' | 'TCU' | 'CB');
+  cloudKey : ('SCT' | 'FEW' | 'BKN' | 'OVC' | 'NSC' | 'NCD' | 'NSC');// []; 
+  flightLevel : number; // TODO prob should be optional 
+  cloudType: ('' | 'TCU' | 'CB' | 'NSC' | 'NCD' | 'NSC'); //TODO prob should be optional 
+  // what about SKC & NCD
   }
 export interface PresentWeather{ 
   code:string;

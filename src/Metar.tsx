@@ -300,23 +300,35 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
       }
     } else {
     try {
+      let vvvv = Number(parsedMetar["prevailingVisibility_m"]);
       if (displayFormat === 'nz' && parsedMetar["prevailingVisibility_m"] > 9999) {
         result = `${Math.round(parsedMetar["prevailingVisibility_m"]/1000)}KM`;
-      } else{
-        let vvvv = Number(parsedMetar["prevailingVisibility_m"]);
+      } else {  
         if (vvvv >= 9999) {
           vvvv = 9999;
-        } else if (vvvv < 1000) {
+        } else if (vvvv < 800) {
+          vvvv = Math.floor(vvvv/50) * 50;
+        } else if (vvvv < 5000) {
           vvvv = Math.floor(vvvv/100) * 100;
         } else{  
           vvvv = Math.floor(vvvv/1000) * 1000;
         }
         result = String(vvvv).padStart(4,"0");
       }
-    } catch (e) {}
+      //TODO VnVnVnVnDv
+      // todo RDRDR/VRVRVRVRi R+dd+(L|C|R|none)+vvvv and there are the whole if more than/less/than... 1000/half....
+      if (vvvv <= 1500){
+          
+      }      
+    } catch (e) {
+      // TODO what?  
+    }
   }
+
     return result
   }
+
+
   function formatPresentWx(){
     if (parsedMetar["presentWeather"]){
       return parsedMetar["presentWeather"]
@@ -324,7 +336,7 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
   }
   function formatRecentWx(){
     if (parsedMetar["recentWeather"]){
-      return parsedMetar["recentWeather"]
+      return 'RE'+parsedMetar["recentWeather"]
     }
   }
   function formatCloud(cg: CloudGroup){
@@ -355,14 +367,17 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
     try {
       if (parsedMetar["cloudGroups"].length === 0) {
         return 'SKC' // prob not strictly correct... NCD etc
-     }
-     if (parsedMetar["cloudGroups"].length === 1 && parsedMetar["cloudGroups"][0]['cloudKey'] === 'NSC') {
-      return 'NSC' 
-     } // should prob. error if there is another cloud group along with NSC
-     if (parsedMetar["cloudGroups"].length > 3) {
+      }
+      if (['SKC','NCD','NSC'].includes(parsedMetar["cloudGroups"][0]['cloudKey'])){
+        return parsedMetar["cloudGroups"][0]['cloudKey'];
+      }
+      //  if (parsedMetar["cloudGroups"].length === 1 && parsedMetar["cloudGroups"][0]['cloudKey'] === 'NSC') {
+      //   return 'NSC' 
+      //  } // should prob. error if there is another cloud group along with NSC
+      if (parsedMetar["cloudGroups"].length > 3) {
           console.log('what to do with more than 3 cloud groups..... sod it (can\'t show them all! ');
           return '////// ////// //////'
-       }
+      }
       for (const each of parsedMetar["cloudGroups"]){
         result.push(formatCloud(each));
       }
@@ -444,9 +459,13 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
   } 
 
   function isCAVOK():boolean {
-    var result = true;
+    var result = !parsedMetar['flags'].includes('SPECI'); // TODO is that correct?
+
     for (const each of parsedMetar["cloudGroups"]){
-      if (each['flightLevel'] < 50) {
+      if (parsedMetar["cloudGroups"].length === 1 && 
+             ['SKC','NCD','NSC'].includes(each['cloudKey'])) {
+          break;
+      } else if (each['flightLevel'] < 50) {
         result = false;
       } else if (each['cloudType'] === 'TCU') {
         result = false;
@@ -467,15 +486,24 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
     const result = [];
     const logg = ['Notes']
     try {
-
-      if (parsedMetar['flags'].includes('METAR')){
+      let MorS = ''
+      if (parsedMetar['flags'].includes('METAR')) {
+        MorS = "SPECI" // SPECI trumps METAR... TODO should there be checks as to whether the report fits SPECI criteria?
+      } else if (parsedMetar['flags'].includes('SPECI')) {
+        MorS = "METAR"
+      }
+      if (MorS !=  ''){
         if (displayFormat === 'scientific'){
           result.push('(notReallyA)METAR')
         } else {
-          result.push('METAR');
-          //TODO decide any logic to do with SPECI is it relevant any more 
+
+          result.push(MorS);
+          //TODO decide any logic to do with SPECI like is it relevant any more 
+
         }
-        if (parsedMetar['flags'].includes('AUTO')){
+        if (parsedMetar['flags'].includes('CORRECTION')){
+          result.push('COR'); // TODO does COR trump Auto???
+        } else if (parsedMetar['flags'].includes('AUTO')){
           result.push('AUTO');
         }
       } else {
@@ -506,6 +534,7 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
         result.push('RMK');
         result.push(parsedMetar['remarks'].toUpperCase());
       }
+      //result.push('='); 
 //true
 
       //TODO runway info
@@ -515,7 +544,7 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
       //throw new Error('This data cannot be formatted as a METAR!',{cause : e});
     }
   
-    return result.join(' ') ;
+    return result.join(' ')+'=';
   }
 
   return (
