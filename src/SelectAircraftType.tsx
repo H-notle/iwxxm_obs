@@ -20,7 +20,7 @@ const SelectAircraftType: React.FC<acTypesProps> = ({ aircraftTypes, aircraftNam
   console.log(`SelectAircraftType thisA/C=${JSON.stringify(thisACInfo,null,2)}`);
   return  (    
     <>
-      <div > 
+      <div style={{ display: 'flex', flexDirection:'row', justifyContent: 'space-around'}}>  
       Select Aircraft Type:
         
           {/* <input type="drop-down" value={Object.map(aircraftNames)} /> */}
@@ -32,7 +32,6 @@ const SelectAircraftType: React.FC<acTypesProps> = ({ aircraftTypes, aircraftNam
       />
        
       </div> 
-      <div>Aircraft:{aircraftType}</div>
       <div >
          {/* {JSON.stringify(thisACInfo, null, 2)} */}
          {Object.keys(thisACInfo).map((each) => {

@@ -6,35 +6,31 @@
     "minimumPressure_hPa": 950,
     "maximumPressure_hPa": 1050,
     "maxheadwind_kt":20
-    },
+  },
   "Paper Dart": {
     "crosswindMax": 3,
     "minimumPressure_hPa": 950,
     "maximumPressure_hPa": 1050,
     "maxheadwind_kt":5
-    },
+  },
   "Brick": {
     "crosswindMax": 9999,
     "minimumPressure_hPa": 0,
     "maximumPressure_hPa": 9999,
     "maxheadwind_kt":9999
-    },
+  },
   "Dakota": {
     "crosswindMax": 40,
     "minimumPressure_hPa": 950,
     "maximumPressure_hPa": 1050,
     "maxheadwind_kt":20
-    },
-  "None": {
-    "crosswindMax": 999999,    
+  },
+  "ToDo": {
+    "crosswindMax": 0,    
     "minimumPressure_hPa": 0,
-    "maximumPressure_hPa": 9999,
-    "maxheadwind_kt": 0
-    },
-    "ToDo": {
-      "crosswindMax": 0,    
-      "minimumPressure_hPa": 0,
-      "maximumPressure_hPa": 0,
-      "maxheadwind_kt": -1
-      }
+    "maximumPressure_hPa": 0,
+    "maxheadwind_kt": -1
+  },
+  "None": {
+  }
 }

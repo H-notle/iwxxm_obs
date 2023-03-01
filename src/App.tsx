@@ -4,6 +4,7 @@ import ExtraData from './Metar';
 import defaultIwxxmData from './here_is_some_data.json';
 import aircraftTypes from './aircraftTypes.json';
 import runwayInfoStr from './runwayInfo.json'; 
+import keywords from './keywords.json';
 
 import JSONMetar from './load_data'
 import './App.css';
@@ -12,12 +13,15 @@ import MetarFields from './MetarFields';
 import { parseMyMetarFunction } from './ParseMetar';
 //import AircraftPicker from './AircraftPicker';
 import SelectAircraftType from './SelectAircraftType'; 
+import SelectKeyword from './selectKeyword'; 
 
 import showAircraftProperties from './showAircraftProperties';
 import SelectRunway from './landing';
 
-
 function App() {
+  // for (const each in Object.keys(keywords)){
+  //   keywords[each].push(each);
+  // } 
   const initialAC = 'ToDo' ;
   const initalRW  = 'None';
   const [iwxxmObs, setIwxxmObs] = React.useState(JSON.stringify(defaultIwxxmData, null, 2));
@@ -25,7 +29,7 @@ function App() {
   const [validJson, setValidJson] = React.useState(true);
   const [chosenType, setAircraftType] = React.useState(initialAC);
   const [chosenRunway, setRunway] = React.useState(initalRW);
- 
+  const [selectedKeyword, setKeyword] = React.useState('none');
   //const [jsonObs, setJsonObs] = React.useState('TODO');
 
   const [displayFormat,setFormat] = React.useState('international');
@@ -46,17 +50,17 @@ function App() {
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
         <div style={{ display: 'flex', flexDirection:'column'  }}> 
           
-          <SelectAircraftType aircraftTypes={JSON.stringify(aircraftTypes,null,2)} aircraftNames={aircraftNames} aircraftType={chosenType} onChange={setAircraftType} />
-          <br/>V
-          <br/>|
-          <br/>|
-          <br/>v<br/>
-          (this data not used anywhere yet)
+         <SelectAircraftType aircraftTypes={JSON.stringify(aircraftTypes,null,2)} aircraftNames={aircraftNames} aircraftType={chosenType} onChange={setAircraftType} />
+         <br/>|
+         <SelectKeyword keywords={JSON.stringify(keywords,null,2)} chosenKeyword={selectedKeyword} onChange={setKeyword} />
+      
         </div>
 
-          <MetarEditor rawData={iwxxmObs} validJson={validJson} onChange={setIwxxmObs} />
+        {/* <MetarEditor rawData={iwxxmObs} validJson={validJson} onChange={setIwxxmObs} /> */}
 
-        <div>
+        <MetarEditor rawData={iwxxmObs} validJson={validJson}  onChange={setIwxxmObs} />
+
+<div>
 
           <SelectRunway  runwayInfoStr= {JSON.stringify(runwayInfoStr,null,2)} chosenRunway = {chosenRunway} onChange={setRunway} />
 
@@ -81,9 +85,7 @@ function App() {
               onChange={()=> setFormat('nz')} name="displayFormat"/>
             <label>NZ</label>  
   
-
-      {metar && <Metar metar={metar} displayFormat={displayFormat} />}
-
+      {metar && <Metar metar={metar} displayFormat={displayFormat} keywordInfo={JSON.stringify(keywords,null,2)} selectedKeyword={selectedKeyword}/>}
 
       <p>ac type={chosenType}</p>
       {/*<p> TODO show errors/exceptions......)</p>

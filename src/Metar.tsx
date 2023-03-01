@@ -14,6 +14,8 @@ interface ExtraNonMetarFields{
 interface Props {
     metar: MetarFields;
     displayFormat:string;
+    keywordInfo:string;
+    selectedKeyword:string;
 }
 
 interface DisplayUnits{
@@ -178,10 +180,11 @@ function validDayOfMonth(y:string,m:string,d:string):boolean{
   } catch {};
   return result;
 } 
-const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
+const Metar: React.FC<Props> = ({ metar,displayFormat,keywordInfo,selectedKeyword }) => {
   var parsedMetar = metar;   
   const setUnits = loadUnits(displayFormat);
-
+  const lKeywordInfo = JSON.parse(keywordInfo);
+  const keyPhrases = lKeywordInfo[selectedKeyword];
   function formatTimeDDHHMM() {
     //date = parsedMetar['datetime'].split('-').join('').split('T').join('').split(':').join('')
     // brutal string chopping - avoids JS mucking around with locale 
@@ -487,9 +490,9 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
     const logg = ['Notes']
     try {
       let MorS = ''
-      if (parsedMetar['flags'].includes('METAR')) {
+      if (parsedMetar['flags'].includes('SPECI')) {
         MorS = "SPECI" // SPECI trumps METAR... TODO should there be checks as to whether the report fits SPECI criteria?
-      } else if (parsedMetar['flags'].includes('SPECI')) {
+      } else if (parsedMetar['flags'].includes('METAR')) {
         MorS = "METAR"
       }
       if (MorS !=  ''){
@@ -514,6 +517,7 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
         throw `The station ("${parsedMetar['station']}") contains other chars than A-Z so cannot be a valid METAR station code `
       }
       result.push(parsedMetar['station']);
+      //result.push('<b> '+parsedMetar['station']+' </b>');
       result.push(formatTimeDDHHMM()); // strictly  MM should be mm=00/30 for METAR
       result.push(formatWind());
       // 
@@ -527,6 +531,15 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
       }
       result.push(formatTemps());
       result.push(formatRecentWx());
+      //15.13.3 wind shear TODO..
+      //       WS RDRDR or  WS ALL RWY
+      // Information on the existence of wind shear along the take-off path or approach path 
+      // between one runway level and 500 metres (1 600 ft) significant to aircraft operations 
+      // shall be reported whenever available and if local circumstances so warrant, using the 
+      // group set WS RDRDR repeated as necessary. If the wind shear along the take-off path or 
+      // approach path is affecting all runways in the airport, WS ALL RWY shall be used.
+      //TODO 15.13.5 Sea-surface temperature and the state of the sea (WTsTs/SS') or sea-surface temperature
+      // and the significant wave height (WTsTs/HHsHsHs)
       result.push(formatPressure());
       result.push(formatRunwayState());
 
@@ -565,12 +578,31 @@ const Metar: React.FC<Props> = ({ metar,displayFormat }) => {
       > 
        {
         Object.keys(metar.extras).map((each) => {
-          return (
+          let highlightThis = false;
+          //for (const eachPatturn in Object.keys(lKeywordInfo[selectedKeyword])){ //keyPhrases
+          for (const eachKeywordIndex in Object.keys(keyPhrases)){ //keyPhrases
+            if (each.includes(keyPhrases[eachKeywordIndex])){
+              highlightThis = true;
+              break;
+            }
+          } //,selectedKeyword))
+          //if (each.includes('pressure')){
+          if (highlightThis){  
+            return (
             <tr key={each}>
-             <td>{each} </td> 
+             <td><b>{each} </b></td> 
              <td>{metar.extras[each]}</td> 
             </tr>) 
-        })
+           } else{
+            return (
+              <tr key={each}>
+               <td>{each}</td> 
+               <td>{metar.extras[each]}</td> 
+              </tr>) 
+           }} 
+
+           
+        )
        }
       </table>
     </div>
