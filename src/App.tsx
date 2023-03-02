@@ -22,7 +22,7 @@ function App() {
   // for (const each in Object.keys(keywords)){
   //   keywords[each].push(each);
   // } 
-  const initialAC = 'ToDo' ;
+  const initialAC = 'None' ;
   const initalRW  = 'None';
   const [iwxxmObs, setIwxxmObs] = React.useState(JSON.stringify(defaultIwxxmData, null, 2));
   const [metar, setMetar] = React.useState<MetarFields>();
@@ -48,10 +48,11 @@ function App() {
     <div className="App">
       <p>Here is some data to play with:</p>
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-        <div style={{ display: 'flex', flexDirection:'column'  }}> 
+        <div style={{ display: 'flex', flexDirection:'column',  justifyContent: 'space-around'}}> 
           
          <SelectAircraftType aircraftTypes={JSON.stringify(aircraftTypes,null,2)} aircraftNames={aircraftNames} aircraftType={chosenType} onChange={setAircraftType} />
-         <br/>|
+         <br/>(aircraft data not used yet)
+         <br/>
          <SelectKeyword keywords={JSON.stringify(keywords,null,2)} chosenKeyword={selectedKeyword} onChange={setKeyword} />
       
         </div>
