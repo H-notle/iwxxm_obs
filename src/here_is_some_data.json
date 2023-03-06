@@ -1,39 +1,81 @@
 {
-"type":"OBSERVATION",
-"flags": ["METAR","SYNOP","AUTO"],
-"datetime":"2022-12-15T05:00:00Z",
-"station" : "NZHB",
-"airTemperature_C":27.3,
-"dewpointTemperature_C":20.1,
-"qnh_hPa":1010.9,
-"pressure_hPa":1010.9,
-"presentWeather":"+SHRA",
-"pastWeather":"FG",
-"meanWindDirection_Deg":100,
-"meanWindSpeed_ms":8.0,
-"extremeClockwiseWindDirection_Deg":150,
-"extremeCounterClockwiseWindDirection_Deg":60,
-"prevailingVisibility_m":12345,
-"cloudGroups" : [
-    {
-    "cloudKey" : "SCT",
-    "flightLevel" : 60,
-    "cloudType":"TCU"
-    },
-    {
-    "cloudKey" : "BKN",
-    "flightLevel" : 70,
-    "cloudType":"CB"
-    }
-    ],
-"seagullCount":12,
-"kiwiCount": 2,
-"kiwiColour": "boringbrown",
-"runwayInfo":{
-    "runwayCode":"36L",
-    "wxCode1":4,
-    "wxCode2":8,
-    "runwayState":91
-
-}
+	"type": "OBSERVATION",
+	"flags": [
+		"METAR",
+		"SYNOP",
+		"AUTO"
+	],
+	"datetime": "2022-12-15T05:00:00Z",
+	"station": "NZHB",
+	"airTemperature_C": 27.9,
+	"dewpointTemperature_C": 20.1,
+	"qnh_hPa": 1010.9,
+	"pressure_hPa": 1010.9,
+	"presentWeather": "+SHRA",
+	"pastWeather": "FG",
+	"meanWindDirection_Deg": 100,
+	"meanWindSpeed_ms": 8.0,
+	"extremeClockwiseWindDirection_Deg": 150,
+	"extremeCounterClockwiseWindDirection_Deg": 60,
+	"prevailingVisibility_m": 12345,
+	"cloudGroups": [
+		{
+			"cloudKey": "SCT",
+			"flightLevel": 60,
+			"cloudType": "TCU"
+		},
+		{
+			"cloudKey": "BKN",
+			"flightLevel": 70,
+			"cloudType": "CB"
+		}
+	],
+	"seagullCount": 12,
+	"kiwiCount": 2,
+	"kiwiColour": "boringbrown",
+	"runwayInfo": {
+		"runwayCode": "36L",
+		"wxCode1": 4,
+		"wxCode2": 8,
+		"runwayState": 91
+	},	
+	"windSpeed1min_ms": {
+		"2022-12-15T04:50:00Z": 7,
+		"2022-12-15T04:51:00Z": 7.1,
+		"2022-12-15T04:52:00Z": 7.2,
+		"2022-12-15T04:53:00Z": 7.1,
+		"2022-12-15T04:54:00Z": 7.2,
+		"2022-12-15T04:55:00Z": 7.3,
+		"2022-12-15T04:56:00Z": 7.2,
+		"2022-12-15T04:57:00Z": 7.1,
+		"2022-12-15T04:58:00Z": 7.1,
+		"2022-12-15T04:59:00Z": 7.2,
+		"2022-12-15T05:00:00Z": 7.3,
+		"2022-12-15T05:01:00Z": 7.00001
+	},
+	"windSpeed30sec_ms": {
+		"2022-12-15T04:50:00Z": 5.789,
+		"2022-12-15T04:50:30Z": 6.123,
+		"2022-12-15T04:51:00Z": 5.789,
+		"2022-12-15T04:51:30Z": 6.123,
+		"2022-12-15T04:52:00Z": 5.789,
+		"2022-12-15T04:52:30Z": 6.123,
+		"2022-12-15T04:53:00Z": 5.789,
+		"2022-12-15T04:53:30Z": 6.123,
+		"2022-12-15T04:54:00Z": 5.789,
+		"2022-12-15T04:54:30Z": 6.123,
+		"2022-12-15T04:55:00Z": 5.789,
+		"2022-12-15T04:55:30Z": 6.123,
+		"2022-12-15T04:56:00Z": 5.789,
+		"2022-12-15T04:56:30Z": 6.123,
+		"2022-12-15T04:57:00Z": 5.789,
+		"2022-12-15T04:57:30Z": 6.123,
+		"2022-12-15T04:58:00Z": 5.789,
+		"2022-12-15T04:58:30Z": 6.123,
+		"2022-12-15T04:59:00Z": 5.789,
+		"2022-12-15T04:59:30Z": 6.123,
+		"2022-12-15T05:00:00Z": 5.789,
+		"2022-12-15T05:00:30Z": 6.123
+	},
+	"fred": "wilma"
 }

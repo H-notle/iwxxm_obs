@@ -7,12 +7,12 @@ export function parseMyMetarFunction(textValue: string):MetarFields {
       const extras = loadExtraData(rawJson);
       const result =  {...rawJson}; 
       result.extras = [];
-    //   for (const each in extras){
-    extras.forEach((extra, i) => {
+      //   for (const each in extras){
+      extras.forEach((extra, i) => {
         const k = extra.key;
         const v = extra.value;
         result.extras[k] = v;
-        console.log(`loaded extra key:"${k}" : val: "${extras[v]}"`);
+        console.log(`parseMyMetarFunction loaded extra key:"${k}" : val: "${v}"`);
     });
       return result;
     }catch (e) {
@@ -22,7 +22,7 @@ export function parseMyMetarFunction(textValue: string):MetarFields {
 
 function loadExtraData(j:Record<string,any>){
   //const j = JSON.parse(textValue);
-  const result = new Array();
+  const result = []; //new Array();
  
   for (const each in j){
     

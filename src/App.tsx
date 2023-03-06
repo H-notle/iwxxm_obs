@@ -31,7 +31,7 @@ function App() {
   const [chosenRunway, setRunway] = React.useState(initalRW);
   const [selectedKeyword, setKeyword] = React.useState('none');
   //const [jsonObs, setJsonObs] = React.useState('TODO');
-
+  console.log('loaded defaultIwxxmData');
   const [displayFormat,setFormat] = React.useState('international');
   React.useEffect(() => {
     try { 

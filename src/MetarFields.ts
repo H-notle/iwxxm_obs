@@ -18,7 +18,7 @@ interface MetarFields  {
     runwayInfo:RunwayInfo;
     remarks: string;
     trend: string;
-    extras: Record<string, string | number| boolean>;
+    extras: Record<string, string | number| boolean|Array<any>>;//|Array<Timeseries>>;
   }
 export interface CloudGroup {
   cloudKey : ('SCT' | 'FEW' | 'BKN' | 'OVC' | 'NSC' | 'NCD' | 'NSC');// []; 
@@ -37,6 +37,11 @@ export interface RunwayInfo{
   wxCode2 : number;
   runwayState : number;
 }
+export interface Timeseries{
+  dt: string; // iso-date
+  value :number
+}
+
 
 export interface AircraftInfo{
   crosswindMax: number;    

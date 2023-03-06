@@ -1,15 +1,14 @@
-import { ListClassKey, Table } from '@material-ui/core';
-import { blue } from '@material-ui/core/colors';
+// import { ListClassKey, Table } from '@material-ui/core';
+// import { blue } from '@material-ui/core/colors';
 import React from 'react';
 
-import { forEachChild } from 'typescript';
+//import { forEachChild } from 'typescript';
 import MetarFields, { CloudGroup } from './MetarFields';
 
-
-interface ExtraNonMetarFields{
-  key: string;
-  value: any;
-}
+// interface ExtraNonMetarFields{
+//   key: string;
+//   value: any;
+// }
 
 interface Props {
     metar: MetarFields;
@@ -187,7 +186,7 @@ function dirRoundTo10Deg(d:number) : number {
 
 function icaoNumberStr2orMore(n:number){// used for wind/gust where it is normally 2 chars long but can be 3
   let l= Math.min(Math.max(`${Math.round(n)}`.length,2),3);
-  console.log(`icaoNumberStr2orMore(${n}) -> l=${l}`)
+  console.log(`icaoNumberStr2orMore(${n}) -> l=${l}`);
   return icaoNumberStr(n,l,false);
 }
 
@@ -198,7 +197,7 @@ function formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) {
     if (parsedMetar["meanWindSpeed_ms"] <= 3){ /// not sure these units are correct
       result.push('VRB'); 
     } else if (parsedMetar["meanWindDirection_Deg"] > 360) {
-      result.push('///')
+      result.push('///');
     } else{
       var ddd10 = Math.round(parsedMetar["meanWindDirection_Deg"] / 10.0);
       if (ddd10 === 0) {
@@ -218,8 +217,10 @@ function formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) {
         result.push(`G${icaoNumberStr2orMore(parsedMetar["gust_ms"]*setUnits['windSpeed'])}`);
         // strictly can be 3 digits...
       }
-      result.push(setUnits['windSpeedUnits']);
-    }
+    } else {
+      result.push('//');
+    }      
+    result.push(setUnits['windSpeedUnits']);
   } catch (e) {
     result.push('//'); 
   }
@@ -257,7 +258,7 @@ function formatTimeDDHHMM(parsedMetar:MetarFields) {
   let hh = time[0];
   let mm = time[1];
   let finaldd = '//';
-  const month = Number(date.split('-')[1]);
+  //const month = Number(date.split('-')[1]);
   if (validDayOfMonth(date.split('-')[0],date.split('-')[1],dd)) { //MONTHS[month])){       
     finaldd = dd;
     if (finaldd.length === 1) {finaldd= '0'+finaldd} ;
@@ -282,7 +283,7 @@ function formatViz(parsedMetar : MetarFields, setUnits:DisplayUnits,displayForma
   let result = '////';
   if (setUnits['visibilityUnits'] === 'SM'){
     if (parsedMetar["prevailingVisibility_m"]){
-      const sm = parsedMetar["prevailingVisibility_m"] * 0.000621371192
+      const sm = parsedMetar["prevailingVisibility_m"] * 0.000621371192;
       if (sm < 0.50) {
         result = '1/4SM';
       } else if (sm < 0.75) {
@@ -320,7 +321,7 @@ function formatViz(parsedMetar : MetarFields, setUnits:DisplayUnits,displayForma
       // TODO what?  
     }
   }
-  return result
+  return result;
 }
 
 function formatPresentWx(parsedMetar : MetarFields){
@@ -367,7 +368,7 @@ function formatClouds(parsedMetar : MetarFields){
     //  } // should prob. error if there is another cloud group along with NSC
     if (parsedMetar["cloudGroups"].length > 3) {
         console.log('what to do with more than 3 cloud groups..... sod it (can\'t show them all! ');
-        return '////// ////// //////'
+        return '////// ////// //////';
     }
     for (const each of parsedMetar["cloudGroups"]){
       result.push(formatCloud(each));
@@ -375,12 +376,12 @@ function formatClouds(parsedMetar : MetarFields){
   } catch (e) {
     result.push('//////');
   }
-  return result.join(' ')
+  return result.join(' ');
 }
 
 function formatRecentWx(parsedMetar : MetarFields){
   if (parsedMetar["recentWeather"]){
-    return 'RE'+parsedMetar["recentWeather"]
+    return 'RE'+parsedMetar["recentWeather"];
   }
 }
 
@@ -425,7 +426,7 @@ function formatTemps(parsedMetar : MetarFields, setUnits:DisplayUnits){
 function formatPressure(parsedMetar : MetarFields, setUnits:DisplayUnits) {
   /*for scientific ...maybe  MSLP*/
   const result = [];
-  console.log(` formatPressure WS=${parsedMetar["qnh_hPa"]} out units= ${setUnits['pressureUnits']}`)
+  console.log(` formatPressure WS=${parsedMetar["qnh_hPa"]} out units= ${setUnits['pressureUnits']}`);
   if (setUnits['pressureUnits'] === 'inHg'){
     result.push('A');
   } else{
@@ -433,7 +434,7 @@ function formatPressure(parsedMetar : MetarFields, setUnits:DisplayUnits) {
   }
 //TODO  if < 950 or > 1050 (check the rules) ...prob should be //// 
   try {
-    var p = parsedMetar['qnh_hPa']
+    var p = parsedMetar['qnh_hPa'];
     if (!p){//(Number.isNaN(p)){
       result.push('////'); 
     } else{
@@ -482,24 +483,95 @@ function is_cccc (st:string) {
   return st.length === 4 && st.match('[A-Z]');
 }
 
+function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, displayFormat:string){
+  const result = [];
+  try {
+    let preamble = '';
+    //let MorS = '';
+    if (parsedMetar['flags'].includes('SPECI')) {
+      preamble = "SPECI"; // SPECI trumps METAR... TODO should there be checks as to whether the report fits SPECI criteria?
+    } else if (parsedMetar['flags'].includes('METAR')) {
+      preamble = "METAR";
+    }
+    if (preamble !==  ''){
+      if (parsedMetar['flags'].includes('CORRECTION')){
+        preamble = 'corrected '+ preamble; 
+      } else if (parsedMetar['flags'].includes('AUTO')){
+        preamble = '(auto) '+ preamble;
+      }      
+      if (displayFormat === 'scientific'){
+        preamble = 'not really fair dinkum '+ preamble;
+      }
+      preamble = 'a '+ preamble;
+    } else {
+      preamble = 'not a proper Observation';
+    }
+    result.push('Here is ' + preamble);
+    if (!is_cccc(parsedMetar['station'] )) {
+      result.push('for some place called ' + parsedMetar['station']);
+    } else{
+      result.push('for '+ parsedMetar['station']);
+    }
+    result.push('for '+ parsedMetar['station'] + ': ');
+    if (parsedMetar['meanWindSpeed_ms'] < 3){
+      result.push('its not too windy');
+    }else if (parsedMetar['meanWindSpeed_ms'] < 8){
+      result.push('its a bit breezy');
+    }else { 
+      result.push('its a bit windy out there');
+    }
+    if (parsedMetar['gust_ms'] < 8){
+      result.push(', pretty gusty too,');
+    }
+  } catch (e){
+    result.push('Well, I could tell you about this report but for this:"' + e +'"!');
+  }
+  result.push(text_date_time(parsedMetar));
+}
+
+function text_date_time(parsedMetar:MetarFields):string{
+  const dt = parsedMetar['datetime'].split('T');
+  //const date = dt[0];
+  const time = dt[1].split(':');
+  let result = 'sometime';
+  try{
+    //let dd = date.split('-')[2];
+    let hh = Number(time[0]);
+    let mm = Number(time[1]);
+    let ampm = 'am';
+    if (hh >= 12) {
+      ampm = 'pm';
+    }
+    if (hh > 12){
+      hh = hh - 12;
+    } else if (hh === 0){
+      hh = 12;
+    }
+    if (mm !== 0){
+      result = hh+ampm;
+    } else {
+      result = hh + ":" + mm + ampm;      
+    }
+  } catch {}
+  return result;
+}
+
 function metar_to_string(parsedMetar: MetarFields, setUnits:DisplayUnits, displayFormat:string){
   const result = [];
-  const logg = ['Notes']
+  const logg = ['Notes'];
   try {
-    let MorS = ''
+    let MorS = '';
     if (parsedMetar['flags'].includes('SPECI')) {
       MorS = "SPECI" // SPECI trumps METAR... TODO should there be checks as to whether the report fits SPECI criteria?
     } else if (parsedMetar['flags'].includes('METAR')) {
-      MorS = "METAR"
+      MorS = "METAR";
     }
-    if (MorS !=  ''){
+    if (MorS !==  ''){
       if (displayFormat === 'scientific'){
-        result.push('(notReallyA)METAR')
+        result.push('(notReallyA)METAR');
       } else {
-
         result.push(MorS);
         //TODO decide any logic to do with SPECI like is it relevant any more 
-
       }
       if (parsedMetar['flags'].includes('CORRECTION')){
         result.push('COR'); // TODO does COR trump Auto???
@@ -511,7 +583,7 @@ function metar_to_string(parsedMetar: MetarFields, setUnits:DisplayUnits, displa
     }
 
     if (!is_cccc(parsedMetar['station'] )) {
-      throw `The station ("${parsedMetar['station']}") contains other chars than A-Z so cannot be a valid METAR station code `
+      throw new Error(`The station ("${parsedMetar['station']}") contains other chars than A-Z so cannot be a valid METAR station code `)
     }
     result.push(parsedMetar['station']);
     //result.push('<b> '+parsedMetar['station']+' </b>');
@@ -520,7 +592,7 @@ function metar_to_string(parsedMetar: MetarFields, setUnits:DisplayUnits, displa
     // 
     if (isCAVOK(parsedMetar) && displayFormat !== 'nz') {
       result.push('CAVOK');
-    } else{
+    } else {
       result.push(formatViz(parsedMetar, setUnits, displayFormat));
       
       result.push(formatPresentWx(parsedMetar));
@@ -545,8 +617,6 @@ function metar_to_string(parsedMetar: MetarFields, setUnits:DisplayUnits, displa
       result.push('RMK');
       result.push(parsedMetar['remarks'].toUpperCase());
     }
-    //result.push('='); 
-//true
 
     //TODO runway info
     //TODO trend
@@ -558,12 +628,79 @@ function metar_to_string(parsedMetar: MetarFields, setUnits:DisplayUnits, displa
   return result.join(' ')+'=';
 }
 
+function addMinutes(pDate:Date, minutes:number) {
+  return new Date(pDate.getTime() + minutes*60000);
+}
+
+function averageTimeSeries(uglyAs:string,earliest:Date,latest:Date,minReports:number):number{
+  const a = JSON.parse(uglyAs);
+  let result = NaN;
+  let sum = 0.0;
+  //const keys = Object.keys(a);
+  let obCount = 0;
+  const earliestT = earliest.getTime;  
+  const latestT = latest.getTime;
+  for (const dtString in a){
+    try {
+      const thisDT = new Date(dtString);    
+      const obT = thisDT.getTime; 
+      if (earliestT <= obT && obT <= latestT){
+        sum = sum + Number(a[dtString]);
+        console.log(`averageTimeSeries found ${obCount+1} at ${dtString}, adding ${a[dtString]}  to sum=${sum}`);
+        obCount = obCount + 1;
+      } else{
+        console.log(`averageTimeSeries  ${dtString} is the wrong time`);
+      }
+    } catch (e){
+      console.log(`averageArray  exception summing data for ${dtString} val was >${a[dtString]}<  "${e}"`);
+    }
+  }
+  console.log(`averageTimeSeries found ${obCount} relevant reports, sum=${sum}`);
+  if (obCount >= minReports){
+    result = sum/obCount;
+  }
+  console.log(`averageTimeSeries average (${sum} /  ${obCount}) = ${result}`);
+  return result;
+}
+
+function load1minuteWind(parsedMetar: MetarFields) : number {
+  // overly simple... doesn't check that there is a minute between the obs
+  let result = NaN;
+  const extraKeys = Object.keys(parsedMetar.extras);
+  const obTime = parsedMetar.datetime;
+  const latestTime = new Date(obTime);
+  const earliestTime = addMinutes(latestTime,-10);  
+
+  try{
+    if (extraKeys.includes('windSpeed1min_ms')){
+      //console.log(`load1minuteWind found 'windSpeed1min_ms"`);
+      const uglyAs = JSON.stringify(parsedMetar.extras['windSpeed1min_ms']);
+      //console.log(`load1minuteWind     uglyAs = ${uglyAs} which is a ${typeof(uglyAs)}`);
+      result = averageTimeSeries(uglyAs,earliestTime,latestTime,10);
+
+    } else if (extraKeys.includes('windSpeed30sec_ms')){
+
+      const uglyAs = JSON.stringify(parsedMetar.extras['windSpeed30sec_ms']);
+      result = averageTimeSeries(uglyAs,earliestTime,latestTime,20);
+    } else{
+      console.log(`load1minuteWind no other wind fields found in ${extraKeys}`);
+    }
+
+  } catch (e){}
+  return result;
+}
 
 const Metar: React.FC<Props> = ({ metar,displayFormat,keywordInfo,selectedKeyword }) => {
   var parsedMetar = metar;   
   const setUnits = loadUnits(displayFormat);
-  const lKeywordInfo = JSON.parse(keywordInfo);
+  const lKeywordInfo = JSON.parse(keywordInfo);   
+  if (!parsedMetar.meanWindSpeed_ms){
+    console.log('Metar calling load1minuteWind');
+    parsedMetar.meanWindSpeed_ms = load1minuteWind(parsedMetar); 
+    console.log(`Metar called load1minuteWind wind speed=${parsedMetar.meanWindSpeed_ms}`);
+  }
   const keyPhrases = lKeywordInfo[selectedKeyword];
+  //console.log(`Metar keyPhrases =${keyPhrases}`)
 
   return (  
     <>
@@ -574,11 +711,12 @@ const Metar: React.FC<Props> = ({ metar,displayFormat,keywordInfo,selectedKeywor
     </div>
     <div>
       <br/>
-      <b>Extra data:</b>
+      <b>Extra data({Object.keys(metar.extras).length}):</b>
       <table  align={"center"}   
         id = "extra-data-table" 
       > 
        {
+        
         Object.keys(metar.extras).map((each) => {
           let highlightThis = false;
           //for (const eachPatturn in Object.keys(lKeywordInfo[selectedKeyword])){ //keyPhrases
@@ -588,13 +726,38 @@ const Metar: React.FC<Props> = ({ metar,displayFormat,keywordInfo,selectedKeywor
               break;
             }
           } 
+          if (typeof metar.extras[each] === 'object') {
+            let whatItIs = 'object?';
+            try{
+               whatItIs = `list of ${Object.keys(metar.extras[each]).length} items`;
+            } catch {}
 
-          if (highlightThis){  
+            if (highlightThis){  
+              return (
+                <tr key={each}>
+                 <td><b>{each} </b></td> 
+                 <td>{whatItIs}</td> 
+                </tr>)
+            } else {
+              return (
+              <tr key={each}>
+               <td>{each} </td> 
+               <td>?</td> 
+              </tr>) 
+            }  
+            
+          } else if (typeof metar.extras[each] != 'string' && typeof metar.extras[each] != 'number') {
             return (
-            <tr key={each}>
-             <td><b>{each} </b></td> 
-             <td>{metar.extras[each]}</td> 
-            </tr>) 
+              <tr key={each}>
+               <td>{each} </td> 
+               <td><b>?</b></td> 
+              </tr>) 
+          } else if (highlightThis){  
+            return (
+              <tr key={each}>
+               <td><b>{each} </b></td> 
+               <td>{metar.extras[each]}</td> 
+              </tr>) 
            } else {
             return (
               <tr key={each}>
@@ -603,7 +766,7 @@ const Metar: React.FC<Props> = ({ metar,displayFormat,keywordInfo,selectedKeywor
               </tr>) 
            }
           }   
-        )
+        )         
        }
       </table>
     </div>
