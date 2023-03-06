@@ -27,9 +27,9 @@ function loadExtraData(j:Record<string,any>){
   for (const each in j){
     
     if (METAR_FIELD_KEYS.includes(each)){
-      console.log(`getloadExtraData have key "${each}" is a METAR field`);
+      //console.log(`getloadExtraData have key "${each}" is a METAR field`);
     } else{
-      console.log(`getloadExtraData have key "${each}" is NOT a METAR field`);
+      //console.log(`getloadExtraData have key "${each}" is NOT a METAR field`);
       result.push({"key":each,"value":j[each]});
     }
   }

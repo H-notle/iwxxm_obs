@@ -106,6 +106,18 @@ function loadUnits(displayFormat:string): DisplayUnits {
       pressureUnits:'hPa',
       pressureDesc : 'pressure is hPa' 
     }
+  } else if (displayFormat === 'french') {
+    results ={
+      windSpeed : 1,
+      windSpeedUnits : 'MPS',
+      temperatureUnits : 'C',//celciusToCelcius,
+      pressure : 1.0,
+      visibilityUnits: "", // Metres
+      windSpeedDesc : 'wind speed is metres per second',
+      temperatureDesc : 'temperature is Celcius',
+      pressureUnits:'hPa',
+      pressureDesc : 'pressure is hPa' 
+    }
   }
   return results;
 }  
@@ -168,12 +180,12 @@ function validDayOfMonth(y:string,m:string,d:string):boolean{
 
         } else if (Math.floor(iy /4.0) * 4.0 === iy){ 
           daysInM=29
-        } else{
+        } else {
           daysInM=28;
         };
       }
       if ([4,6,9,11].includes(im)) {daysInM=30};
-      console.log(`validDayOfMonth(${y},${m},${d}) -> daysInM = ${daysInM}`)
+      //console.log(`validDayOfMonth(${y},${m},${d}) -> daysInM = ${daysInM}`)
       if (id <= daysInM) {result = true} ;
     }
   } catch {};
@@ -186,7 +198,7 @@ function dirRoundTo10Deg(d:number) : number {
 
 function icaoNumberStr2orMore(n:number){// used for wind/gust where it is normally 2 chars long but can be 3
   let l= Math.min(Math.max(`${Math.round(n)}`.length,2),3);
-  console.log(`icaoNumberStr2orMore(${n}) -> l=${l}`);
+  //console.log(`icaoNumberStr2orMore(${n}) -> l=${l}`);
   return icaoNumberStr(n,l,false);
 }
 
@@ -426,7 +438,7 @@ function formatTemps(parsedMetar : MetarFields, setUnits:DisplayUnits){
 function formatPressure(parsedMetar : MetarFields, setUnits:DisplayUnits) {
   /*for scientific ...maybe  MSLP*/
   const result = [];
-  console.log(` formatPressure WS=${parsedMetar["qnh_hPa"]} out units= ${setUnits['pressureUnits']}`);
+  //console.log(` formatPressure WS=${parsedMetar["qnh_hPa"]} out units= ${setUnits['pressureUnits']}`);
   if (setUnits['pressureUnits'] === 'inHg'){
     result.push('A');
   } else{
@@ -638,15 +650,17 @@ function averageTimeSeries(uglyAs:string,earliest:Date,latest:Date,minReports:nu
   let sum = 0.0;
   //const keys = Object.keys(a);
   let obCount = 0;
-  const earliestT = earliest.getTime;  
-  const latestT = latest.getTime;
+  const earliestT = earliest.getTime();  
+  const latestT = latest.getTime();
+  //console.log(`averageTimeSeries earliestT =${earliestT}, latestT=${latestT}`);
   for (const dtString in a){
     try {
       const thisDT = new Date(dtString);    
-      const obT = thisDT.getTime; 
+      const obT = thisDT.getTime(); 
+      //console.log(`averageTimeSeries this obT =${obT}`);
       if (earliestT <= obT && obT <= latestT){
         sum = sum + Number(a[dtString]);
-        console.log(`averageTimeSeries found ${obCount+1} at ${dtString}, adding ${a[dtString]}  to sum=${sum}`);
+        //console.log(`averageTimeSeries found ${obCount+1} at ${dtString}, adding ${a[dtString]}  to sum=${sum}`);
         obCount = obCount + 1;
       } else{
         console.log(`averageTimeSeries  ${dtString} is the wrong time`);
@@ -655,11 +669,11 @@ function averageTimeSeries(uglyAs:string,earliest:Date,latest:Date,minReports:nu
       console.log(`averageArray  exception summing data for ${dtString} val was >${a[dtString]}<  "${e}"`);
     }
   }
-  console.log(`averageTimeSeries found ${obCount} relevant reports, sum=${sum}`);
+  //console.log(`averageTimeSeries found ${obCount} relevant reports, sum=${sum}`);
   if (obCount >= minReports){
     result = sum/obCount;
   }
-  console.log(`averageTimeSeries average (${sum} /  ${obCount}) = ${result}`);
+  //console.log(`averageTimeSeries average (${sum} /  ${obCount}) = ${result}`);
   return result;
 }
 
@@ -695,9 +709,9 @@ const Metar: React.FC<Props> = ({ metar,displayFormat,keywordInfo,selectedKeywor
   const setUnits = loadUnits(displayFormat);
   const lKeywordInfo = JSON.parse(keywordInfo);   
   if (!parsedMetar.meanWindSpeed_ms){
-    console.log('Metar calling load1minuteWind');
+    //console.log('Metar calling load1minuteWind');
     parsedMetar.meanWindSpeed_ms = load1minuteWind(parsedMetar); 
-    console.log(`Metar called load1minuteWind wind speed=${parsedMetar.meanWindSpeed_ms}`);
+    //console.log(`Metar called load1minuteWind wind speed=${parsedMetar.meanWindSpeed_ms}`);
   }
   const keyPhrases = lKeywordInfo[selectedKeyword];
   //console.log(`Metar keyPhrases =${keyPhrases}`)
