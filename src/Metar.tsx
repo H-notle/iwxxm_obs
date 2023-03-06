@@ -688,7 +688,7 @@ function load1minuteWind(parsedMetar: MetarFields) : number {
   try{
     if (extraKeys.includes('windSpeed1min_ms')){
       console.log(`load1minuteWind trying to use 1min data`);
-      // I can't work out how to pass this into the averaging method & unpacking it without typescript getting all confused...
+      // I can't work out how to cleanly pass this data into the averaging method & unpacking it without typescript getting all confused...
       const uglyAs = JSON.stringify(parsedMetar.extras['windSpeed1min_ms']);
       result = averageTimeSeries(uglyAs,earliestTime,latestTime,10);
     } 
