@@ -658,7 +658,7 @@ function averageTimeSeries(uglyAs:string,earliest:Date,latest:Date,minReports:nu
       const thisDT = new Date(dtString);    
       const obT = thisDT.getTime(); 
       //console.log(`averageTimeSeries this obT =${obT}`);
-      if (earliestT <= obT && obT <= latestT){
+      if (earliestT <= obT && obT <= latestT && !Number.isNaN(a[dtString])){
         sum = sum + Number(a[dtString]);
         //console.log(`averageTimeSeries found ${obCount+1} at ${dtString}, adding ${a[dtString]}  to sum=${sum}`);
         obCount = obCount + 1;
@@ -687,20 +687,22 @@ function load1minuteWind(parsedMetar: MetarFields) : number {
 
   try{
     if (extraKeys.includes('windSpeed1min_ms')){
-      //console.log(`load1minuteWind found 'windSpeed1min_ms"`);
+      // I can't work out how to pass this into the averaging method & unpacking it without typescript getting all confused...
       const uglyAs = JSON.stringify(parsedMetar.extras['windSpeed1min_ms']);
-      //console.log(`load1minuteWind     uglyAs = ${uglyAs} which is a ${typeof(uglyAs)}`);
       result = averageTimeSeries(uglyAs,earliestTime,latestTime,10);
-
-    } else if (extraKeys.includes('windSpeed30sec_ms')){
-
-      const uglyAs = JSON.stringify(parsedMetar.extras['windSpeed30sec_ms']);
-      result = averageTimeSeries(uglyAs,earliestTime,latestTime,20);
-    } else{
-      console.log(`load1minuteWind no other wind fields found in ${extraKeys}`);
+    } 
+    if (Number.isNaN(result)) {
+      if (extraKeys.includes('windSpeed30sec_ms')){
+        const uglyAs = JSON.stringify(parsedMetar.extras['windSpeed30sec_ms']);
+        result = averageTimeSeries(uglyAs,earliestTime,latestTime,20);
+      } else {
+        console.log(`load1minuteWind no other wind fields found in ${extraKeys}`);
+      }
     }
 
-  } catch (e){}
+  } catch (e){
+    console.log(`load1minuteWind error ${e}`)
+  }
   return result;
 }
 
