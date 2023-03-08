@@ -1,8 +1,9 @@
 {
     "none":[],
-    "Pressure":["qnh_hPa","pressure",".*_hPa"],
-    "Temperature":["airTemperature_C","dewpointTemperature_C",".*_C"],
-    "Wind":[  "meanWindDirection_Deg","meanWindSpeed_ms","extremeClockwiseWindDirection_Deg","extremeCounterClockwiseWindDirection_Deg","_Deg","_ms","_mph","_kt"],
-    "Weather":["presentWeather","RecentWeather","Weather"],
-    "Runway":["runwayInfo"]
+    "Pressure":["pressure","qnh_hPa","pressure",".*_hPa"],
+    "Temperature":["temperature","airTemperature_C","dewpointTemperature_C","_C"],
+    "Wind":[ "wind", "meanWindDirection_Deg","meanWindSpeed_ms","extremeClockwiseWindDirection_Deg","extremeCounterClockwiseWindDirection_Deg","_Deg","_ms","_mph","_kt"],
+    "Weather":["wx","presentWeather","RecentWeather","Weather"],
+    "Runway":["runway","runwayInfo"],
+    "Visibility":["viz","_M","Visibility"]
 }

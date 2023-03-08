@@ -4,20 +4,21 @@ import React from 'react';
 
 //import { forEachChild } from 'typescript';
 import MetarFields, { CloudGroup } from './MetarFields';
+import MetarSmartDisplay from './MetarSmartDisplay';
 
 // interface ExtraNonMetarFields{
 //   key: string;
 //   value: any;
 // }
 
-interface Props {
+interface MetarProps {
     metar: MetarFields;
     displayFormat:string;
     keywordInfo:string;
     selectedKeyword:string;
 }
 
-interface DisplayUnits{
+export interface DisplayUnits{
   windSpeed : number;
   windSpeedUnits : string;
   //temperature : number;
@@ -27,19 +28,20 @@ interface DisplayUnits{
   pressure :number;
   pressureUnits :string;
   windSpeedDesc : string;
+  windSpeedTerm: string;
   temperatureDesc : string;
   pressureDesc :string; 
 }
 
 
-function celciusToFahrenheit(c:number) : number{
+export function celciusToFahrenheit(c:number) : number{
   return (c * 9.0)/5.0 + 32.0; 
 }
-function celciusToKelvin(c:number):number{
+export function celciusToKelvin(c:number):number{
   return c + 273.16;
 }
 
-function loadUnits(displayFormat:string): DisplayUnits {
+export function loadUnits(displayFormat:string): DisplayUnits {
   // TODO watch C/C laugh when they see this...
   //console.log(`loadUnits displayFormat="${displayFormat}"`)
   var results: DisplayUnits={
@@ -50,6 +52,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
     //visibility: "";
     visibilityUnits: "", // Metres
     windSpeedDesc : 'wind speed is knots',
+    windSpeedTerm : 'knots',
     temperatureDesc : 'temperature is Celcius',
     pressureUnits:'hPa',
     pressureDesc : 'pressure is HPa' 
@@ -64,6 +67,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
       temperatureUnits : 'F',//celciusToFahrenheit, // what do do here ... needs a function ...(t * 9/5)+32
       pressure : 1 / .338639, // hPa to inches of Hg - I think thats correct!!!
       windSpeedDesc : 'wind speed is MPH',
+      windSpeedTerm : 'miles per hour',
       visibilityUnits: "SM", // Statute Miles
       temperatureDesc : 'temperature is Fahrenheit',
       pressureUnits : 'inHg',
@@ -78,6 +82,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
       pressure : 1.0,
       visibilityUnits: "", // Metres
       windSpeedDesc : 'wind speed is knots',
+      windSpeedTerm : 'knots',
       temperatureDesc : 'temperature is Celcius',
       pressureUnits:'hPa',
       pressureDesc : 'pressure is hPa' 
@@ -91,6 +96,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
       visibilityUnits: "", // Metres
       pressureUnits:'Pa',
       windSpeedDesc : 'wind speed is who knows',
+      windSpeedTerm : 'meters per second',
       temperatureDesc : 'temperature is not yet kelvin',
       pressureDesc : 'pressure is Pa' 
     }
@@ -102,11 +108,12 @@ function loadUnits(displayFormat:string): DisplayUnits {
       pressure : 1.0,
       visibilityUnits: "", // Metres
       windSpeedDesc : 'wind speed is knots',
+      windSpeedTerm : 'knots',
       temperatureDesc : 'temperature is Celcius',
       pressureUnits:'hPa',
       pressureDesc : 'pressure is hPa' 
     }
-  } else if (displayFormat === 'french') {
+  } else if (displayFormat === 'european') {
     results ={
       windSpeed : 1,
       windSpeedUnits : 'MPS',
@@ -114,6 +121,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
       pressure : 1.0,
       visibilityUnits: "", // Metres
       windSpeedDesc : 'wind speed is metres per second',
+      windSpeedTerm : 'metres per second',
       temperatureDesc : 'temperature is Celcius',
       pressureUnits:'hPa',
       pressureDesc : 'pressure is hPa' 
@@ -124,7 +132,7 @@ function loadUnits(displayFormat:string): DisplayUnits {
 
 
 
-function icaoNumberStr(n:number,maxDigits:number,roundDown:boolean ){
+export function icaoNumberStr(n:number,maxDigits:number,roundDown:boolean ){
   /* eg
    icaoNumberStr(1234,5,true) -> "01234" ! 
    icaoNumberStr(1234,4,true) -> "1234" ! too long so chops leading digit off
@@ -151,7 +159,7 @@ function icaoNumberStr(n:number,maxDigits:number,roundDown:boolean ){
   }
 }
 
-function checkWithin(n:string,minN:number,maxN:number): boolean {
+export function checkWithin(n:string,minN:number,maxN:number): boolean {
   let result = false;
   if ([1,2].includes(n.length)) {
     try {
@@ -164,7 +172,7 @@ function checkWithin(n:string,minN:number,maxN:number): boolean {
   return result;
 }
 
-function validDayOfMonth(y:string,m:string,d:string):boolean{
+export function validDayOfMonth(y:string,m:string,d:string):boolean{
   // validate y,m,d as a valid date ..  not millenium safe
   let result = false;
   try{
@@ -192,17 +200,84 @@ function validDayOfMonth(y:string,m:string,d:string):boolean{
   return result;
 } 
 
-function dirRoundTo10Deg(d:number) : number {
+export function dirRoundTo10Deg(d:number) : number {
   return 10 * Math.round(d/10.0);
 }
 
-function icaoNumberStr2orMore(n:number){// used for wind/gust where it is normally 2 chars long but can be 3
+export function icaoNumberStr2orMore(n:number){// used for wind/gust where it is normally 2 chars long but can be 3
   let l= Math.min(Math.max(`${Math.round(n)}`.length,2),3);
   //console.log(`icaoNumberStr2orMore(${n}) -> l=${l}`);
   return icaoNumberStr(n,l,false);
 }
 
-function formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) {
+export function ddd_to_compass8(ddd:number):string{
+  // const dirStrings = {0:"Northerly",
+  //                   45:"Northeasterly",
+  //                   90:"Easterly",
+  //                   135:"Southeastery",
+  //                   180:"Southerly",
+  //                   225:"Southwesterly",
+  //                   270:"Westerly",
+  //                   315:"Northwesterly"};
+  const dirStrings = ["northerly",
+                    "northeasterly",
+                    "easterly",
+                    "southeastery",
+                    "southerly",
+                    "southwesterly",
+                    "westerly",
+                    "northwesterly",
+                    "northerly"];
+  return dirStrings[Math.floor((ddd+22)/45)];
+}
+
+
+export function formatWind_plain(parsedMetar : MetarFields, setUnits:DisplayUnits) {
+  const result = [];
+  try {
+    if (parsedMetar["meanWindSpeed_ms"] ){
+      result.push(icaoNumberStr2orMore(parsedMetar["meanWindSpeed_ms"]*setUnits['windSpeed'])); 
+         
+      // if (parsedMetar["gust_ms"]) {
+      //   result.push(`G${icaoNumberStr2orMore(parsedMetar["gust_ms"]*setUnits['windSpeed'])}`);
+      //   // strictly can be 3 digits...
+      // }
+    } else {
+      result.push('?no wind?');
+    }      
+    result.push(setUnits['windSpeedTerm']);
+  } catch (e) {
+    result.push('?unknown wind?'); 
+  }
+  try {
+    //const roundedTo10Deg = parsedMetar["meanWindDirection_Deg"]
+    if (parsedMetar["meanWindSpeed_ms"] <= 3){ /// not sure these units are correct
+      result.push('variable'); 
+    } else if (parsedMetar["meanWindDirection_Deg"] > 360) {
+      result.push('(no direction)');
+    } else{
+      var ddd10 = Math.round(parsedMetar["meanWindDirection_Deg"] / 10.0);
+      if (ddd10 === 0) {
+        ddd10 = 36;
+      } 
+      result.push(ddd_to_compass8(parsedMetar["meanWindDirection_Deg"])); 
+
+    }
+
+  } catch (e) {
+    result.push('///');   
+  }
+  // no checking of wind cf gust values > 5 knots etc  (wait for colour highlighting...)
+
+  // const windVarResult = [];
+
+  if (parsedMetar["extremeCounterClockwiseWindDirection_Deg"]  || parsedMetar["extremeClockwiseWindDirection_Deg"]){
+    result.push('and is swirling around a bit'); 
+  } 
+  return result.join(' ')+'.';
+}
+
+export function formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) {
   const result = [];
   try {
     //const roundedTo10Deg = parsedMetar["meanWindDirection_Deg"]
@@ -259,7 +334,7 @@ function formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) {
   return result.join('');
 }
 
-function formatTimeDDHHMM(parsedMetar:MetarFields) {
+export function formatTimeDDHHMM(parsedMetar:MetarFields) {
   //date = parsedMetar['datetime'].split('-').join('').split('T').join('').split(':').join('')
   // brutal string chopping - avoids JS mucking around with locale 
   const dt = parsedMetar['datetime'].split('T');
@@ -291,7 +366,7 @@ function formatTimeDDHHMM(parsedMetar:MetarFields) {
   return finaldd+finalhh+finalmm;
 }
 
-function formatViz(parsedMetar : MetarFields, setUnits:DisplayUnits,displayFormat:string) {
+export function formatViz(parsedMetar : MetarFields, setUnits:DisplayUnits,displayFormat:string) {
   let result = '////';
   if (setUnits['visibilityUnits'] === 'SM'){
     if (parsedMetar["prevailingVisibility_m"]){
@@ -336,13 +411,15 @@ function formatViz(parsedMetar : MetarFields, setUnits:DisplayUnits,displayForma
   return result;
 }
 
-function formatPresentWx(parsedMetar : MetarFields){
+export function formatPresentWx(parsedMetar : MetarFields){
+  let result = '';
   if (parsedMetar["presentWeather"]){
-    return parsedMetar["presentWeather"]
+    result = parsedMetar["presentWeather"];
   }
+  return result;
 }
 
-function formatCloud(cg: CloudGroup){
+export function formatCloud(cg: CloudGroup){
   const result = []
   try {
     if (['FEW','SCT','BKN','OVC'].includes(cg['cloudKey'])){
@@ -364,7 +441,7 @@ function formatCloud(cg: CloudGroup){
   return result.join('');    
 }
 
-function formatClouds(parsedMetar : MetarFields){
+export function formatClouds(parsedMetar : MetarFields){
   // TODO validate clouds are in ascending order and increasing octas ...
   // TODO doesn't check if only 1 is CB/TCU
   const result = [];
@@ -391,13 +468,15 @@ function formatClouds(parsedMetar : MetarFields){
   return result.join(' ');
 }
 
-function formatRecentWx(parsedMetar : MetarFields){
+export function formatRecentWx(parsedMetar : MetarFields){
+  let result = '';
   if (parsedMetar["recentWeather"]){
-    return 'RE'+parsedMetar["recentWeather"];
+    result =  'RE'+parsedMetar["recentWeather"];
   }
+  return result;
 }
 
-function formatTemp(tt : number, setUnits:DisplayUnits){
+export function formatTemp(tt : number, setUnits:DisplayUnits){
   const result = [];
   try {
      var t = tt;
@@ -422,7 +501,7 @@ function formatTemp(tt : number, setUnits:DisplayUnits){
   return result.join('');
 }
 
-function formatTemps(parsedMetar : MetarFields, setUnits:DisplayUnits){
+export function formatTemps(parsedMetar : MetarFields, setUnits:DisplayUnits){
   const tt = parsedMetar["airTemperature_C"];
   const td = parsedMetar["dewpointTemperature_C"];
   const result = [];
@@ -435,7 +514,7 @@ function formatTemps(parsedMetar : MetarFields, setUnits:DisplayUnits){
   return result.join('');
 } 
 
-function formatPressure(parsedMetar : MetarFields, setUnits:DisplayUnits) {
+export function formatPressure(parsedMetar : MetarFields, setUnits:DisplayUnits) {
   /*for scientific ...maybe  MSLP*/
   const result = [];
   //console.log(` formatPressure WS=${parsedMetar["qnh_hPa"]} out units= ${setUnits['pressureUnits']}`);
@@ -458,7 +537,7 @@ function formatPressure(parsedMetar : MetarFields, setUnits:DisplayUnits) {
   return result.join('');
 }
 
-function formatRunwayState(parsedMetar : MetarFields){
+export function formatRunwayState(parsedMetar : MetarFields){
   const result = [];
   result.push(`${parsedMetar['runwayInfo']['runwayCode']}`);
   result.push(`${parsedMetar['runwayInfo']['wxCode1']}`);
@@ -467,7 +546,7 @@ function formatRunwayState(parsedMetar : MetarFields){
   return result.join('');
 }
 
-function isCAVOK(parsedMetar : MetarFields):boolean {
+export function isCAVOK(parsedMetar : MetarFields):boolean {
   var result = !parsedMetar['flags'].includes('SPECI'); // TODO is that correct?
 
   for (const each of parsedMetar["cloudGroups"]){
@@ -491,11 +570,11 @@ function isCAVOK(parsedMetar : MetarFields):boolean {
   return result;
 }
 
-function is_cccc (st:string) {
+export function is_cccc (st:string) {
   return st.length === 4 && st.match('[A-Z]');
 }
 
-function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, displayFormat:string){
+function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, displayFormat:string):string{
   const result = [];
   try {
     let preamble = '';
@@ -505,43 +584,111 @@ function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, di
     } else if (parsedMetar['flags'].includes('METAR')) {
       preamble = "METAR";
     }
+    let a= 'a';
     if (preamble !==  ''){
       if (parsedMetar['flags'].includes('CORRECTION')){
         preamble = 'corrected '+ preamble; 
       } else if (parsedMetar['flags'].includes('AUTO')){
-        preamble = '(auto) '+ preamble;
+        preamble = 'auto '+ preamble +  ' (AWSOB)';
+        a = 'an';
       }      
       if (displayFormat === 'scientific'){
         preamble = 'not really fair dinkum '+ preamble;
       }
-      preamble = 'a '+ preamble;
+      preamble = a + ' '+ preamble;
     } else {
       preamble = 'not a proper Observation';
     }
-    result.push('Here is ' + preamble);
+    result.push('Here is some sample plain text of ' + preamble);
     if (!is_cccc(parsedMetar['station'] )) {
       result.push('for some place called ' + parsedMetar['station']);
     } else{
       result.push('for '+ parsedMetar['station']);
     }
-    result.push('for '+ parsedMetar['station'] + ': ');
+    //result.push('for '+ parsedMetar['station'] + ': ');
+    result.push('at');
+    result.push(text_date_time(parsedMetar));
+    result.push('(UTC)'); // TO get loacle working
     if (parsedMetar['meanWindSpeed_ms'] < 3){
-      result.push('its not too windy');
+      result.push('Its not too windy its only');
     }else if (parsedMetar['meanWindSpeed_ms'] < 8){
-      result.push('its a bit breezy');
+      result.push('Its a bit breezy with a');
     }else { 
-      result.push('its a bit windy out there');
+      result.push('Its a bit windy out there with a');
     }
-    if (parsedMetar['gust_ms'] < 8){
-      result.push(', pretty gusty too,');
+    result.push(formatWind_plain(parsedMetar, setUnits));
+    //result.push(setUnits['windSpeedTerm']);
+    if (parsedMetar['gust_ms']){
+      if (parsedMetar['gust_ms'] > parsedMetar['meanWindSpeed_ms'] + 5) {
+        result.push(` pretty gusty too, as up to ${Math.round(parsedMetar['gust_ms']*setUnits['windSpeed'])} has been reported.`);
+      }
     }
+    const viz =  formatViz(parsedMetar, setUnits,displayFormat);
+    if (viz){
+      console.log(`metar_as_plain_text displayFormat = "${displayFormat}"`);
+      if (displayFormat === 'nz' && parsedMetar["prevailingVisibility_m"] > 9999) {
+        result.push(`Visibilty is ${Math.round(parsedMetar["prevailingVisibility_m"]/1000)}KM`);
+      } else {
+        if (Number(viz) === 9999){
+          result.push(`Visibilty is great, over ${viz}`);
+        } else if (parsedMetar['prevailingVisibility_m'] > 7000){
+          result.push(`Visibilty is good at ${viz}`);
+        } else if (parsedMetar['prevailingVisibility_m'] <500){
+          result.push(`Its pea soup out there with visibilty at ${viz}`);
+        } else if (parsedMetar['prevailingVisibility_m'] <1500){
+          result.push(`Visibilty is down to ${viz}`);
+        } else if (parsedMetar['prevailingVisibility_m'] > 5000){
+          result.push(`Visibilty is ok  ${viz}`);
+
+        } else {
+          result.push(`Visibilty is getting down to ${viz}`);
+        }
+        if (setUnits['visibilityUnits'] === ''){
+          result.push(`M`);
+        }else{
+          result.push(setUnits['visibilityUnits'] );
+        }
+      }
+    }
+    if (parsedMetar['cloudGroups'].length > 1) {
+      result.push(`Theres a bit of cloud around `);
+    } else if (parsedMetar['cloudGroups'].length === 1 && ['NSC','SKC','NCD'].includes(parsedMetar['cloudGroups'][0]['cloudKey'])) {
+     result.push(`Its mostly sunny `); 
+    }
+    const brutal = JSON.stringify(parsedMetar['cloudGroups']);
+    if (brutal.indexOf('CB') > 0) {
+      result.push(`and there is a thunderstorm about.`); 
+    } else if ( brutal.indexOf('TCU') > 0) {
+      result.push(`and watch out, there might be a thunderstorm or 2 about soon.`); 
+    } else{
+      result.push(`.`);
+    }
+
+    if (parsedMetar['airTemperature_C'] > 25){
+      if (parsedMetar['airTemperature_C'] < parsedMetar['dewpointTemperature_C']+4) {
+        result.push(`but its a pretty sticky ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}, Bruce!`);
+      } else if (parsedMetar['airTemperature_C'] < parsedMetar['dewpointTemperature_C']+8) {
+        result.push(`and a jolly pleasant ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}.`);
+      } else {
+        result.push(`and uts a warm  ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}.`);
+      }
+    } else if (parsedMetar['airTemperature_C'] < 3){
+        result.push(`and its bloody cold out there at ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}.`);
+    }else if (parsedMetar['airTemperature_C'] < 8){
+        result.push(`and its getting nippy out there at ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}.`);
+    }else {
+        result.push(`and the thermometers reading ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}..`);
+    } 
+      
+    result.push('(Oh, and there might be more info if you looked at the METAR proper, like pressure etc.)');         
+    
   } catch (e){
     result.push('Well, I could tell you about this report but for this:"' + e +'"!');
   }
-  result.push(text_date_time(parsedMetar));
+  return result.join(' ').replaceAll(' 0',' ').replaceAll(' .','.');
 }
 
-function text_date_time(parsedMetar:MetarFields):string{
+export function text_date_time(parsedMetar:MetarFields):string{
   const dt = parsedMetar['datetime'].split('T');
   //const date = dt[0];
   const time = dt[1].split(':');
@@ -559,7 +706,7 @@ function text_date_time(parsedMetar:MetarFields):string{
     } else if (hh === 0){
       hh = 12;
     }
-    if (mm !== 0){
+    if (mm === 0){
       result = hh+ampm;
     } else {
       result = hh + ":" + mm + ampm;      
@@ -570,7 +717,7 @@ function text_date_time(parsedMetar:MetarFields):string{
 
 function metar_to_string(parsedMetar: MetarFields, setUnits:DisplayUnits, displayFormat:string){
   const result = [];
-  const logg = ['Notes'];
+  //const logg = ['Notes'];
   try {
     let MorS = '';
     if (parsedMetar['flags'].includes('SPECI')) {
@@ -708,7 +855,8 @@ function load1minuteWind(parsedMetar: MetarFields) : number {
   return result;
 }
 
-const Metar: React.FC<Props> = ({ metar,displayFormat,keywordInfo,selectedKeyword }) => {
+const Metar: React.FC<MetarProps> = ({ metar,displayFormat,keywordInfo,selectedKeyword }) => {
+  //const [val, setValidJson] = React.useState(true);
   var parsedMetar = metar;   
   const setUnits = loadUnits(displayFormat);
   const lKeywordInfo = JSON.parse(keywordInfo);   
@@ -718,16 +866,22 @@ const Metar: React.FC<Props> = ({ metar,displayFormat,keywordInfo,selectedKeywor
     //console.log(`Metar called load1minuteWind wind speed=${parsedMetar.meanWindSpeed_ms}`);
   }
   const keyPhrases = lKeywordInfo[selectedKeyword];
+  const tac= metar_to_string(parsedMetar, setUnits, displayFormat);
   //console.log(`Metar keyPhrases =${keyPhrases}`)
-
+//[content-position:'right']  style={{ display: 'flex', flexDirection:'column', ,justifyContent: 'right'}}
   return (  
     <>
-      <div >
+      {/* <div >
 
-        {metar_to_string(parsedMetar, setUnits, displayFormat)}
+        {tac}
    
-    </div>
+    </div> */}
     <div>
+      <MetarSmartDisplay parsedMetar={parsedMetar} displayFormat= {displayFormat} keywordInfo={keywordInfo} selectedKeyword={selectedKeyword}/>
+    </div>
+      
+ 
+    <div style={{ display: 'flex', flexDirection:'column',justifyContent: 'right'}}>
       <br/>
       <b>Extra data({Object.keys(metar.extras).length}):</b>
       <table  align={"center"}   
@@ -788,6 +942,7 @@ const Metar: React.FC<Props> = ({ metar,displayFormat,keywordInfo,selectedKeywor
        }
       </table>
     </div>
+    <div>{metar_as_plain_text(metar,setUnits,displayFormat)}</div>
    </>
   )
 };
