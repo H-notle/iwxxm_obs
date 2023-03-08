@@ -50,19 +50,19 @@ function App() {
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
         <div style={{ display: 'flex', flexDirection:'column',  justifyContent: 'space-around'}}> 
           
-         <SelectAircraftType aircraftTypes={JSON.stringify(aircraftTypes,null,2)} aircraftNames={aircraftNames} aircraftType={chosenType} onChange={setAircraftType} />
+         {/* <SelectAircraftType aircraftTypes={JSON.stringify(aircraftTypes,null,2)} aircraftNames={aircraftNames} aircraftType={chosenType} onChange={setAircraftType} />
          <br/>(aircraft data not used yet)
-         <br/>
+         <br/> */}
          <SelectKeyword keywords={JSON.stringify(keywords,null,2)} chosenKeyword={selectedKeyword} onChange={setKeyword} />
       
         </div>
-
-        {/* <MetarEditor rawData={iwxxmObs} validJson={validJson} onChange={setIwxxmObs} /> */}
-
-        <MetarEditor rawData={iwxxmObs} validJson={validJson}  onChange={setIwxxmObs} />
-
-<div>
-
+        <div>
+          <MetarEditor rawData={iwxxmObs} validJson={validJson}  onChange={setIwxxmObs} />
+        </div>
+        <div style={{ display: 'flex', flexDirection:'column',  justifyContent: 'space-around'}}>
+          <SelectAircraftType aircraftTypes={JSON.stringify(aircraftTypes,null,2)} aircraftNames={aircraftNames} aircraftType={chosenType} onChange={setAircraftType} />
+         <br/>(aircraft data not used yet)
+         <br/>
           <SelectRunway  runwayInfoStr= {JSON.stringify(runwayInfoStr,null,2)} chosenRunway = {chosenRunway} onChange={setRunway} />
 
         </div>

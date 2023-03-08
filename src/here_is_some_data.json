@@ -12,7 +12,7 @@
 	"qnh_hPa": 1010.9,
 	"pressure_hPa": 1010.9,
 	"presentWeather": "+SHRA",
-	"pastWeather": "FG",
+	"recentWeather": "FG",
 	"meanWindDirection_Deg": 100,
 	"meanWindSpeed_ms": 8.0,
 	"extremeClockwiseWindDirection_Deg": 150,
