@@ -32,7 +32,7 @@
 	],
 	"seagullCount": 12,
 	"kiwiCount": 2,
-	"kiwiColour": "boringbrown",
+	"kiwiVisibility": "they are brown and hard to spot",
 	"runwayInfo": {
 		"runwayCode": "36L",
 		"wxCode1": 4,
@@ -76,6 +76,5 @@
 		"2022-12-15T04:59:30Z": 6.123,
 		"2022-12-15T05:00:00Z": 5.789,
 		"2022-12-15T05:00:30Z": 6.123
-	},
-	"fred": "wilma"
+	}
 }

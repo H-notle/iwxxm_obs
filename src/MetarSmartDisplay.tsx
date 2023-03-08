@@ -65,22 +65,30 @@ const MetarSmartDisplay: React.FC<MetarSmartDisplayProps> = ({parsedMetar,displa
       result.push(MetarTacField({tacField:formatTimeDDHHMM(parsedMetar),styling:''})); // strictly  MM should be mm=00/30 for METAR
       
       result.push(MetarTacField({tacField:formatWind(parsedMetar,setUnits),styling:calculateStyling(keyPhrases,'wind')}));
-      // 
+       
       if (isCAVOK(parsedMetar) && displayFormat !== 'nz') {
 
         result.push(MetarTacField({tacField:'CAVOK',styling:calculateStyling(keyPhrases,'viz,wx')}));
+      
       } else {
         result.push(MetarTacField({tacField:formatViz(parsedMetar, setUnits, displayFormat),styling:calculateStyling(keyPhrases,'viz')}));
         const presWx =  formatPresentWx(parsedMetar);
-        if (keyPhrases.includes('viz') && (presWx.includes('SH') || presWx.includes('SH'))){
+        if (keyPhrases.includes('viz') && (presWx.includes('SH') || presWx.includes('SH') || presWx.includes('FG'))){
           result.push(MetarTacField({tacField:presWx,styling:'<b>'}));
         } else{
           result.push(MetarTacField({tacField:presWx,styling:calculateStyling(keyPhrases,'wx')}));
         }
         result.push(MetarTacField({tacField:formatClouds(parsedMetar),styling:''}));
       }
+
       result.push(MetarTacField({tacField:formatTemps(parsedMetar,setUnits),styling:calculateStyling(keyPhrases,'_C')}));
-      result.push(MetarTacField({tacField:formatRecentWx(parsedMetar),styling:calculateStyling(keyPhrases,'wx')}));
+
+      const recentWx =  formatRecentWx(parsedMetar);
+      if (keyPhrases.includes('viz') && (recentWx.includes('SH') || recentWx.includes('SH') || recentWx.includes('FG'))){
+        result.push(MetarTacField({tacField:recentWx,styling:'<b>'}));
+      } else{
+        result.push(MetarTacField({tacField:recentWx,styling:calculateStyling(keyPhrases,'wx')}));
+      }
       //15.13.3 wind shear TODO..
       //       WS RDRDR or  WS ALL RWY
       // Information on the existence of wind shear along the take-off path or approach path 

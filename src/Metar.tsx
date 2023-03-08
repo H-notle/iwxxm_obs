@@ -539,10 +539,12 @@ export function formatPressure(parsedMetar : MetarFields, setUnits:DisplayUnits)
 
 export function formatRunwayState(parsedMetar : MetarFields){
   const result = [];
-  result.push(`${parsedMetar['runwayInfo']['runwayCode']}`);
-  result.push(`${parsedMetar['runwayInfo']['wxCode1']}`);
-  result.push(`${parsedMetar['runwayInfo']['wxCode2']}`);
-  result.push(`${parsedMetar['runwayInfo']['runwayState']}`);
+  if (parsedMetar['runwayInfo']){
+    result.push(`${parsedMetar['runwayInfo']['runwayCode']}`);
+    result.push(`${parsedMetar['runwayInfo']['wxCode1']}`);
+    result.push(`${parsedMetar['runwayInfo']['wxCode2']}`);
+    result.push(`${parsedMetar['runwayInfo']['runwayState']}`);
+  }
   return result.join('');
 }
 
@@ -559,7 +561,7 @@ export function isCAVOK(parsedMetar : MetarFields):boolean {
       result = false;
     } else if (each['cloudType'] === 'CB') {
       result = false;
-    } else if (parsedMetar['presentWeather'] && parsedMetar['presentWeather'].indexOf('TS') >= 0){
+    } else if (parsedMetar['presentWeather'] ){//&& parsedMetar['presentWeather'].indexOf('TS') >= 0){
       result = false; // this prob correct....
     }
   }
@@ -599,7 +601,7 @@ function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, di
     } else {
       preamble = 'not a proper Observation';
     }
-    result.push('Here is some sample plain text of ' + preamble);
+    result.push('Here is some sample plain text of the above,  ' + preamble);
     if (!is_cccc(parsedMetar['station'] )) {
       result.push('for some place called ' + parsedMetar['station']);
     } else{
@@ -644,9 +646,9 @@ function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, di
           result.push(`Visibilty is getting down to ${viz}`);
         }
         if (setUnits['visibilityUnits'] === ''){
-          result.push(`M`);
+          result.push(`metres.`);
         }else{
-          result.push(setUnits['visibilityUnits'] );
+          result.push(setUnits['visibilityUnits']+'.' );
         }
       }
     }
@@ -666,21 +668,28 @@ function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, di
 
     if (parsedMetar['airTemperature_C'] > 25){
       if (parsedMetar['airTemperature_C'] < parsedMetar['dewpointTemperature_C']+4) {
-        result.push(`but its a pretty sticky ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}, Bruce!`);
+        result.push(`It's a pretty sticky ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}, Bruce!`);
       } else if (parsedMetar['airTemperature_C'] < parsedMetar['dewpointTemperature_C']+8) {
-        result.push(`and a jolly pleasant ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}.`);
+        result.push(`It is jolly pleasant out there at ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']},`);
       } else {
-        result.push(`and uts a warm  ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}.`);
+        result.push(`It's a warm  ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']},`);
       }
     } else if (parsedMetar['airTemperature_C'] < 3){
-        result.push(`and its bloody cold out there at ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}.`);
+        result.push(`Its bloody cold out there at ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']},`);
     }else if (parsedMetar['airTemperature_C'] < 8){
-        result.push(`and its getting nippy out there at ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}.`);
+        result.push(`Its getting nippy out there at about ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']},`);
     }else {
-        result.push(`and the thermometers reading ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']}..`);
+        result.push(`The thermometers reading ${formatTemp(parsedMetar['airTemperature_C'],setUnits)}${setUnits['temperatureUnits']},`);
     } 
-      
-    result.push('(Oh, and there might be more info if you looked at the METAR proper, like pressure etc.)');         
+    result.push(`and set your altometer to the airports QNH of ${formatPressure(parsedMetar, setUnits)}`);  
+    let extra = '';
+    const extraN  = Object.keys(parsedMetar.extras).length;
+    if (extraN === 1){
+      extra = `and check out that extra field`;
+    } else if (extraN> 1){
+      extra = `and check out those extra (${Object.keys(parsedMetar.extras).length}) fields`;
+    }
+    result.push(`(Oh, and there might be more info if you looked at the METAR proper ${extra})`);         
     
   } catch (e){
     result.push('Well, I could tell you about this report but for this:"' + e +'"!');
@@ -880,8 +889,11 @@ const Metar: React.FC<MetarProps> = ({ metar,displayFormat,keywordInfo,selectedK
       <MetarSmartDisplay parsedMetar={parsedMetar} displayFormat= {displayFormat} keywordInfo={keywordInfo} selectedKeyword={selectedKeyword}/>
     </div>
       
- 
-    <div style={{ display: 'flex', flexDirection:'column',justifyContent: 'right'}}>
+    
+    <div style={{ display: 'flex', flexDirection:'row',justifyContent: 'space-around'}}>
+    <div style={{ display: 'flex', flexDirection:'column',justifyContent: 'space-around',maxWidth:500}}>
+    {metar_as_plain_text(metar,setUnits,displayFormat)}</div>
+    <div style={{ display: 'flex', flexDirection:'column',justifyContent: 'space-around'}}>
       <br/>
       <b>Extra data({Object.keys(metar.extras).length}):</b>
       <table  align={"center"}   
@@ -942,7 +954,8 @@ const Metar: React.FC<MetarProps> = ({ metar,displayFormat,keywordInfo,selectedK
        }
       </table>
     </div>
-    <div>{metar_as_plain_text(metar,setUnits,displayFormat)}</div>
+
+    </div>
    </>
   )
 };
