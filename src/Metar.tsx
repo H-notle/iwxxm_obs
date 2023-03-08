@@ -605,7 +605,7 @@ function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, di
     if (!is_cccc(parsedMetar['station'] )) {
       result.push('for some place called ' + parsedMetar['station']);
     } else{
-      result.push('for '+ parsedMetar['station']);
+      result.push('for '+ parsedMetar['station'] +' (at Eltonton Airport)');
     }
     //result.push('for '+ parsedMetar['station'] + ': ');
     result.push('at');
