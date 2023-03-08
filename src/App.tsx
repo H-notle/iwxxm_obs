@@ -1,12 +1,12 @@
 import React from 'react';
 import Metar from './Metar';
-import ExtraData from './Metar';
+//import ExtraData from './Metar';
 import defaultIwxxmData from './here_is_some_data.json';
 import aircraftTypes from './aircraftTypes.json';
 import runwayInfoStr from './runwayInfo.json'; 
 import keywords from './keywords.json';
 
-import JSONMetar from './load_data'
+//import JSONMetar from './load_data'
 import './App.css';
 import MetarEditor from './MetarEditor';
 import MetarFields from './MetarFields';
@@ -85,10 +85,12 @@ function App() {
             <input type="radio" value="nz" id="nz"
               onChange={()=> setFormat('nz')} name="displayFormat"/>
             <label>NZ</label>  
-  
+            <input type="radio" value="european" id="european"
+              onChange={()=> setFormat('european')} name="displayFormat"/>
+            <label>European</label>    
       {metar && <Metar metar={metar} displayFormat={displayFormat} keywordInfo={JSON.stringify(keywords,null,2)} selectedKeyword={selectedKeyword}/>}
 
-      <p>ac type={chosenType}</p>
+      {/* <p>ac type={chosenType}</p> */}
       {/*<p> TODO show errors/exceptions......)</p>
       <p> TODO add TREND data......</p>
       <p> colouring fields......</p>
