@@ -627,14 +627,19 @@ function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, di
     }
     const viz =  formatViz(parsedMetar, setUnits,displayFormat);
     if (viz){
+      let apartFrom = '';
+      const wx = formatRecentWx(parsedMetar) + formatPresentWx(parsedMetar);
+      if (wx.includes('FG')) {
+        apartFrom = " (apart from the fog)";
+      }
       console.log(`metar_as_plain_text displayFormat = "${displayFormat}"`);
       if (displayFormat === 'nz' && parsedMetar["prevailingVisibility_m"] > 9999) {
         result.push(`Visibilty is ${Math.round(parsedMetar["prevailingVisibility_m"]/1000)}KM`);
       } else {
         if (Number(viz) === 9999){
-          result.push(`Visibilty is great, over ${viz}`);
+          result.push(`Visibilty is great, over ${viz}  ${apartFrom}`);
         } else if (parsedMetar['prevailingVisibility_m'] > 7000){
-          result.push(`Visibilty is good at ${viz}`);
+          result.push(`Visibilty is good at ${viz} ${apartFrom}`);
         } else if (parsedMetar['prevailingVisibility_m'] <500){
           result.push(`Its pea soup out there with visibilty at ${viz}`);
         } else if (parsedMetar['prevailingVisibility_m'] <1500){
@@ -643,7 +648,7 @@ function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, di
           result.push(`Visibilty is ok  ${viz}`);
 
         } else {
-          result.push(`Visibilty is getting down to ${viz}`);
+          result.push(`Visibilty is getting down to ${viz} `);
         }
         if (setUnits['visibilityUnits'] === ''){
           result.push(`metres.`);
