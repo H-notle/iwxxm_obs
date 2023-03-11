@@ -20,7 +20,7 @@ const SelectRunway:  React.FC<runwayInfoProps> = ({ runwayInfoStr, chosenRunway,
   //console.log(`SelectAircraftType aircraftTypes=${aircraftTypes}`);
   const thisRunwayInfo = runwayInfo[chosenRunway];
   const runwayNames = Object.keys(runwayInfo)//runwayInfo.keys; //<runwayInfo className="keys"></runwayInfo>
-  console.log(`SelectRunway(...) this Runway=${JSON.stringify(thisRunwayInfo,null,2)}`);
+  //console.log(`SelectRunway(...) this Runway=${JSON.stringify(thisRunwayInfo,null,2)}`);
   // const standardisedData = Array(standardisedDataProps)
   return  (    
     <>

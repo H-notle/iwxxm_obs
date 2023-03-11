@@ -17,7 +17,7 @@ const SelectAircraftType: React.FC<acTypesProps> = ({ aircraftTypes, aircraftNam
   const lAircraft =  JSON.parse(aircraftTypes);
   //console.log(`SelectAircraftType aircraftTypes=${aircraftTypes}`);
   const thisACInfo = lAircraft[aircraftType];
-  console.log(`SelectAircraftType thisA/C=${JSON.stringify(thisACInfo,null,2)}`);
+  //console.log(`SelectAircraftType thisA/C=${JSON.stringify(thisACInfo,null,2)}`);
   return  (    
     <>
       <div style={{ display: 'flex', flexDirection:'row', justifyContent: 'space-around'}}>  

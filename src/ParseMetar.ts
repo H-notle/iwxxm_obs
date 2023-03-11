@@ -12,7 +12,7 @@ export function parseMyMetarFunction(textValue: string):MetarFields {
         const k = extra.key;
         const v = extra.value;
         result.extras[k] = v;
-        console.log(`parseMyMetarFunction loaded extra key:"${k}" : val: "${v}"`);
+        //console.log(`parseMyMetarFunction loaded extra key:"${k}" : val: "${v}"`);
     });
       return result;
     }catch (e) {

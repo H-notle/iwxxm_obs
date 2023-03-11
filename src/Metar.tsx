@@ -222,12 +222,15 @@ export function ddd_to_compass8(ddd:number):string{
   const dirStrings = ["northerly",
                     "northeasterly",
                     "easterly",
-                    "southeastery",
+                    "southeasterly",
                     "southerly",
                     "southwesterly",
                     "westerly",
                     "northwesterly",
                     "northerly"];
+  if (!ddd){
+    return '';
+  }                  
   return dirStrings[Math.floor((ddd+22)/45)];
 }
 
@@ -273,6 +276,13 @@ export function formatWind_plain(parsedMetar : MetarFields, setUnits:DisplayUnit
 
   if (parsedMetar["extremeCounterClockwiseWindDirection_Deg"]  || parsedMetar["extremeClockwiseWindDirection_Deg"]){
     result.push('and is swirling around a bit'); 
+    const antiClock = ddd_to_compass8(parsedMetar["extremeCounterClockwiseWindDirection_Deg"]);
+    const clock = ddd_to_compass8(parsedMetar["extremeClockwiseWindDirection_Deg"]);
+    if (antiClock && clock){
+      result.push(`${antiClock} to ${clock}`.replaceAll('erly',''));
+    } else {
+      result.push(`esp. to the ${antiClock}${clock}`.replace('erly',''));
+    }
   } 
   return result.join(' ')+'.';
 }
@@ -629,17 +639,32 @@ function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, di
     if (viz){
       let apartFrom = '';
       const wx = formatRecentWx(parsedMetar) + formatPresentWx(parsedMetar);
+      let obscurifiers = []
+
       if (wx.includes('FG')) {
-        apartFrom = " (apart from the fog)";
+        obscurifiers.push('fog');
+        //apartFrom = " (apart from the fog)";
       }
-      console.log(`metar_as_plain_text displayFormat = "${displayFormat}"`);
+      if (wx.includes('MI')) {
+        obscurifiers.push('mist');
+      }
+      if (wx.includes('DS')) {
+        obscurifiers.push('dust\'n\'sand');
+      }
+      if (wx.includes('FU')) {
+        obscurifiers.push('smoke');
+      }   // TODO etc....   
+      if (obscurifiers.length > 0) {
+        apartFrom = ` (apart from the ${obscurifiers.join(',')}`;
+      }
+      //console.log(`metar_as_plain_text displayFormat = "${displayFormat}"`);
       if (displayFormat === 'nz' && parsedMetar["prevailingVisibility_m"] > 9999) {
         result.push(`Visibilty is ${Math.round(parsedMetar["prevailingVisibility_m"]/1000)}KM`);
       } else {
         if (Number(viz) === 9999){
-          result.push(`Visibilty is great, over ${viz}  ${apartFrom}`);
+          result.push(`Visibilty is great, over ${viz} `);
         } else if (parsedMetar['prevailingVisibility_m'] > 7000){
-          result.push(`Visibilty is good at ${viz} ${apartFrom}`);
+          result.push(`Visibilty is good at ${viz}`);
         } else if (parsedMetar['prevailingVisibility_m'] <500){
           result.push(`Its pea soup out there with visibilty at ${viz}`);
         } else if (parsedMetar['prevailingVisibility_m'] <1500){
@@ -651,7 +676,7 @@ function metar_as_plain_text(parsedMetar: MetarFields, setUnits:DisplayUnits, di
           result.push(`Visibilty is getting down to ${viz} `);
         }
         if (setUnits['visibilityUnits'] === ''){
-          result.push(`metres.`);
+          result.push(`metres${apartFrom}.`);
         }else{
           result.push(setUnits['visibilityUnits']+'.' );
         }
@@ -848,14 +873,14 @@ function load1minuteWind(parsedMetar: MetarFields) : number {
 
   try{
     if (extraKeys.includes('windSpeed1min_ms')){
-      console.log(`load1minuteWind trying to use 1min data`);
+      //console.log(`load1minuteWind trying to use 1min data`);
       // I can't work out how to cleanly pass this data into the averaging method & unpacking it without typescript getting all confused...
       const uglyAs = JSON.stringify(parsedMetar.extras['windSpeed1min_ms']);
       result = averageTimeSeries(uglyAs,earliestTime,latestTime,10);
     } 
     if (Number.isNaN(result)) {
       if (extraKeys.includes('windSpeed30sec_ms')){
-        console.log(`load1minuteWind trying to use 30sec data`);
+        //console.log(`load1minuteWind trying to use 30sec data`);
         const uglyAs = JSON.stringify(parsedMetar.extras['windSpeed30sec_ms']);
         result = averageTimeSeries(uglyAs,earliestTime,latestTime,20);
       } else {
@@ -890,7 +915,7 @@ const Metar: React.FC<MetarProps> = ({ metar,displayFormat,keywordInfo,selectedK
         {tac}
    
     </div> */}
-    <div>
+    <div >
       <MetarSmartDisplay parsedMetar={parsedMetar} displayFormat= {displayFormat} keywordInfo={keywordInfo} selectedKeyword={selectedKeyword}/>
     </div>
       
@@ -935,7 +960,7 @@ const Metar: React.FC<MetarProps> = ({ metar,displayFormat,keywordInfo,selectedK
               </tr>) 
             }  
             
-          } else if (typeof metar.extras[each] != 'string' && typeof metar.extras[each] != 'number') {
+          } else if (typeof metar.extras[each] != 'string' && typeof metar.extras[each] != 'number'&& typeof metar.extras[each] != 'boolean') {
             return (
               <tr key={each}>
                <td>{each} </td> 
@@ -945,13 +970,13 @@ const Metar: React.FC<MetarProps> = ({ metar,displayFormat,keywordInfo,selectedK
             return (
               <tr key={each}>
                <td><b>{each} </b></td> 
-               <td>{metar.extras[each]}</td> 
+               <td>{String(metar.extras[each])}</td> 
               </tr>) 
            } else {
             return (
               <tr key={each}>
                <td>{each}</td> 
-               <td>{metar.extras[each]}</td> 
+               <td>{String(metar.extras[each])}</td> 
               </tr>) 
            }
           }   
