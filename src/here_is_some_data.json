@@ -18,7 +18,15 @@
 	"extremeClockwiseWindDirection_Deg": 150,
 	"extremeCounterClockwiseWindDirection_Deg": 60,
 	"prevailingVisibility_m": 12345,
-	"cloudGroups": [
+	"visibility_runway90_m": 9876,
+"visibility_runway270_m":5432,
+"runway90":{
+	"prevailingVisibility_m": 9876
+},
+"runway270":{
+	"prevailingVisibility_m": 5432
+},
+"cloudGroups": [
 		{
 			"cloudKey": "SCT",
 			"flightLevel": 60,

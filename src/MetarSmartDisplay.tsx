@@ -24,11 +24,14 @@ function calculateStyling(keywords:string[],lookFor:string):string{
   // } 
   return result;
 } 
+
+//const varToString = varObj => Object.keys(varObj)[0]
+
 const MetarSmartDisplay: React.FC<MetarSmartDisplayProps> = ({parsedMetar,displayFormat,keywordInfo,selectedKeyword}) =>{
    
   const setUnits = loadUnits(displayFormat);
   const lKeywordInfo = JSON.parse(keywordInfo);   
-
+  
   const keyPhrases = lKeywordInfo[selectedKeyword];
   const result = [];
     //const logg = ['Notes'];
@@ -42,52 +45,54 @@ const MetarSmartDisplay: React.FC<MetarSmartDisplayProps> = ({parsedMetar,displa
       if (MorS !==  ''){
         if (displayFormat === 'scientific'){
           const tacField= '(notReallyA)METAR';
-          result.push(MetarTacField({tacField:tacField,styling:'',elementName:''}));
+          result.push(MetarTacField({tacField:tacField,styling:'',elementName:'',value:''}));
           //result.push(MetarTacField('(notReallyA)METAR'));
         } else {
           result.push(MorS);
           //TODO decide any logic to do with SPECI like is it relevant any more 
         }
         if (parsedMetar['flags'].includes('CORRECTION')){
-          result.push(MetarTacField({tacField:'COR',styling:'',elementName:''})); // TODO does COR trump Auto???
+          result.push(MetarTacField({tacField:'COR',styling:'',elementName:'',value:''})); // TODO does COR trump Auto???
         } else if (parsedMetar['flags'].includes('AUTO')){
-          result.push(MetarTacField({tacField:'AUTO',styling:'',elementName:''}));
+          result.push(MetarTacField({tacField:'AUTO',styling:'',elementName:'',value:''}));
         }
       } else {
-        result.push(MetarTacField({tacField:'<OBS>',styling:'',elementName:''}));
+        result.push(MetarTacField({tacField:'<OBS>',styling:'',elementName:'',value:''}));
       }
   
       if (!is_cccc(parsedMetar['station'] )) {
         throw new Error(`The station ("${parsedMetar['station']}") contains other chars than A-Z so cannot be a valid METAR station code `)
       }
-      result.push(MetarTacField({tacField:parsedMetar['station'],styling:'',elementName:''}));
+      //console.log(`MetarSmartDisplay calling MetarTacField with ${Object.keys({myFirstName})[0]}`)
+      result.push(MetarTacField({tacField:parsedMetar['station'],styling:'',elementName:'',value:''}));
       //result.push('<b> '+parsedMetar['station']+' </b>');
-      result.push(MetarTacField({tacField:formatTimeDDHHMM(parsedMetar),styling:'',elementName:''})); // strictly  MM should be mm=00/30 for METAR
+      result.push(MetarTacField({tacField:formatTimeDDHHMM(parsedMetar),styling:'',elementName:'',value:parsedMetar.datetime})); // strictly  MM should be mm=00/30 for METAR
       
-      result.push(MetarTacField({tacField:formatWind(parsedMetar,setUnits),styling:calculateStyling(keyPhrases,'wind'),elementName:'formatWind'}));
+      result.push(MetarTacField({tacField:formatWind(parsedMetar,setUnits),styling:calculateStyling(keyPhrases,'wind'),elementName:'?',value:''}));
        
       if (isCAVOK(parsedMetar) && displayFormat !== 'nz') {
 
-        result.push(MetarTacField({tacField:'CAVOK',styling:calculateStyling(keyPhrases,'viz,wx'),elementName:'CAVOK'}));
+        result.push(MetarTacField({tacField:'CAVOK',styling:calculateStyling(keyPhrases,'viz,wx'),elementName:'CAVOK',value:'CAVOK'}));
       
       } else {
-        result.push(MetarTacField({tacField:formatViz(parsedMetar, setUnits, displayFormat),styling:calculateStyling(keyPhrases,'viz'),elementName:''}));
+        result.push(MetarTacField({tacField:formatViz(parsedMetar, setUnits, displayFormat),styling:calculateStyling(keyPhrases,'viz'),elementName:'',value:''}));
         const presWx =  formatPresentWx(parsedMetar);
         if (keyPhrases.includes('viz') && (presWx.includes('SH') || presWx.includes('SH') || presWx.includes('FG'))){
-          result.push(MetarTacField({tacField:presWx,styling:'<b>',elementName:''}));
+          result.push(MetarTacField({tacField:presWx,styling:'<b>',elementName:'',value:''}));
         } else{
-          result.push(MetarTacField({tacField:presWx,styling:calculateStyling(keyPhrases,'wx'),elementName:''}));
+          result.push(MetarTacField({tacField:presWx,styling:calculateStyling(keyPhrases,'wx'),elementName:'',value:''}));
         }
-        result.push(MetarTacField({tacField:formatClouds(parsedMetar),styling:'',elementName:'formatClouds'}));
+
+        result.push(MetarTacField({tacField:formatClouds(parsedMetar),styling:'',elementName:'formatClouds',value:''}));
       }
 
-      result.push(MetarTacField({tacField:formatTemps(parsedMetar,setUnits),styling:calculateStyling(keyPhrases,'_C'),elementName:''}));
+      result.push(MetarTacField({tacField:formatTemps(parsedMetar,setUnits),styling:calculateStyling(keyPhrases,'_C'),elementName:'airTemperature_C',value:parsedMetar.airTemperature_C}));
 
       const recentWx =  formatRecentWx(parsedMetar);
       if (keyPhrases.includes('viz') && (recentWx.includes('SH') || recentWx.includes('SH') || recentWx.includes('FG'))){
-        result.push(MetarTacField({tacField:recentWx,styling:'<b>',elementName:''}));
+        result.push(MetarTacField({tacField:recentWx,styling:'<b>',elementName:'',value:''}));
       } else{
-        result.push(MetarTacField({tacField:recentWx,styling:calculateStyling(keyPhrases,'wx'),elementName:''}));
+        result.push(MetarTacField({tacField:recentWx,styling:calculateStyling(keyPhrases,'wx'),elementName:'',value:''}));
       }
       //15.13.3 wind shear TODO..
       //       WS RDRDR or  WS ALL RWY
@@ -98,18 +103,20 @@ const MetarSmartDisplay: React.FC<MetarSmartDisplayProps> = ({parsedMetar,displa
       // approach path is affecting all runways in the airport, WS ALL RWY shall be used.
       //TODO 15.13.5 Sea-surface temperature and the state of the sea (WTsTs/SS') or sea-surface temperature
       // and the significant wave height (WTsTs/HHsHsHs)
-      result.push(MetarTacField({tacField:formatPressure(parsedMetar, setUnits),styling:calculateStyling(keyPhrases,'pressure'),elementName:''}));
-      result.push(MetarTacField({tacField:formatRunwayState(parsedMetar),styling:calculateStyling(keyPhrases,'runway'),elementName:''}));
+      
+      //console.log(`MetarSmartDisplay calling MetarTacField with ${Object.keys({parsedMetar.qnh_hPa})[0]}`)
+      result.push(MetarTacField({tacField:formatPressure(parsedMetar, setUnits),styling:calculateStyling(keyPhrases,'pressure'),elementName:'qnh_hPa',value:parsedMetar.qnh_hPa}));
+      result.push(MetarTacField({tacField:formatRunwayState(parsedMetar),styling:calculateStyling(keyPhrases,'runway'),elementName:'',value:''}));
   
       if (parsedMetar['remarks']) {
-        result.push(MetarTacField({tacField:'RMK',styling:'',elementName:''}));
-        result.push(MetarTacField({tacField:parsedMetar['remarks'].toUpperCase(),styling:'',elementName:''}));
+        result.push(MetarTacField({tacField:'RMK',styling:'',elementName:'',value:''}));
+        result.push(MetarTacField({tacField:parsedMetar['remarks'].toUpperCase(),styling:'',elementName:'',value:''}));
       }
-      result.push(MetarTacField({tacField:'=',styling:'',elementName:''}));
+      result.push(MetarTacField({tacField:'=',styling:'',elementName:'',value:''}));
       //TODO runway info
       //TODO trend
     } catch (e) {
-      result.push(MetarTacField({tacField:'This data cannot be formatted as a METAR! because ' + e, styling : '<b>', elementName : ''}));
+      result.push(MetarTacField({tacField:'This data cannot be formatted as a METAR! because ' + e, styling : '<b>', elementName : '',value:''}));
       //throw new Error('This data cannot be formatted as a METAR!',{cause : e});
     }
     return (  
