@@ -49,27 +49,7 @@ function lr_formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) :string
   if (gg !== ''){
     wind = `${wind} ${gg}`;
   }
-  // const windVarResult = [];
 
-  // if (parsedMetar["extremeCounterClockwiseWindDirection_Deg"]){
-  //   windVarResult.push(icaoNumberStr(dirRoundTo10Deg(parsedMetar["extremeCounterClockwiseWindDirection_Deg"]),3,false));
-  // } else {
-  //   windVarResult.push('///');
-  // }
-
-  // windVarResult.push('V');
-
-  // if (parsedMetar["extremeClockwiseWindDirection_Deg"]){
-  //   windVarResult.push(icaoNumberStr(dirRoundTo10Deg(parsedMetar["extremeClockwiseWindDirection_Deg"]),3,false));
-  // } else {
-  //   windVarResult.push('///');  
-  // }
-
-  // const sWindVar = windVarResult.join('');
-  // if (sWindVar !== '///V///') {
-  //   result.push(` ${sWindVar}`);
-  // } 
-  //return result.join('');
   return wind; 
 }
 export function lr_formatViz(parsedMetar : MetarFields, setUnits:DisplayUnits,displayFormat:string) {
@@ -134,9 +114,10 @@ function lr_formatPresentWx(parsedMetar : MetarFields){
   let result = '';
   if (parsedMetar["presentWeather"]){
     if (parsedMetar["presentWeather"].includes('+')){
-        result = `MOD ${split_presWx(parsedMetar["presentWeather"].replaceAll('+',''))}`;
-    }else{
-        result = parsedMetar["presentWeather"];
+      result = `MOD ${split_presWx(parsedMetar["presentWeather"].replaceAll('+',''))}`;
+    }else {
+      // don't know if there is a keyword equiv of "-"
+      result = `${split_presWx(parsedMetar["presentWeather"].replaceAll('-',''))}`;
     }
   }
   return result;
@@ -155,10 +136,7 @@ export function lr_formatCloud(cg: CloudGroup,displayFormat:LocalReportDisplayUn
       result.push(cg['cloudType']);
     }
 
-    result.push(`${valueRoundedDownto100s(cg['flightLevel']*displayFormat['heightFtConversion'])}${displayFormat['heightUnits']}`);
-    
-    
-
+    result.push(`${valueRoundedDownto100s(cg['flightLevel']*100/displayFormat['heightFtConversion'])}${displayFormat['heightUnits']}`);
 
   } catch(e) {
     result.push('/// ///');
@@ -177,9 +155,7 @@ export function lr_formatClouds(parsedMetar : MetarFields,displayFormat:LocalRep
     if (['SKC','NCD','NSC'].includes(parsedMetar["cloudGroups"][0]['cloudKey'])){
       return parsedMetar["cloudGroups"][0]['cloudKey'];
     }
-    //  if (parsedMetar["cloudGroups"].length === 1 && parsedMetar["cloudGroups"][0]['cloudKey'] === 'NSC') {
-    //   return 'NSC' 
-    //  } // should prob. error if there is another cloud group along with NSC
+
     if (parsedMetar["cloudGroups"].length > 3) {
         console.log('what to do with more than 3 cloud groups..... sod it (can\'t show them all! ');
         return '////// ////// //////';
@@ -201,23 +177,18 @@ interface LocalreportSmartDisplayProps {
 }
 function calculateStyling(keywords:string[],lookFor:string):string{
   let result = '';
-  // if (lookFor.includes(',')){
     const manyKeywords = lookFor.split(',');
     for (const each in manyKeywords){
       if (keywords.includes(manyKeywords[each])) {
         result = '<b>'
       } 
     } 
-  // } else if (keywords.includes(lookFor)) {
-  //   result = '<b>'
-  // } 
+
   return result;
 } 
 
 function formatT(parsedMetar : MetarFields, setUnits:LocalReportDisplayUnits){
-
   return `T${lr_formatTemp(parsedMetar["airTemperature_C"],setUnits)}`;
-
 } 
 
 function formatTd(parsedMetar : MetarFields, setUnits:LocalReportDisplayUnits){
@@ -256,6 +227,10 @@ const LocalreportDisplay: React.FC<LocalreportSmartDisplayProps> = ({parsedMetar
   
   const keyPhrases = lKeywordInfo[selectedKeyword];
   const result = [];
+  console.log(`-----------------------LocalreportDisplay displayFormat=${displayFormat}`)
+  if (displayFormat === 'nz'){
+    result.push(':(--------------- NZ does not do Local reports! ---------------):')
+  } else{
     //const logg = ['Notes'];
     try {
       let MorS = '';
@@ -334,10 +309,10 @@ const LocalreportDisplay: React.FC<LocalreportSmartDisplayProps> = ({parsedMetar
       result.push(MetarTacField({tacField:'This data cannot be formatted as a METAR! because ' + e, styling : '<b>', elementName : '',value:''}));
       //throw new Error('This data cannot be formatted as a METAR!',{cause : e});
     }
-    return (  
+    }  return (  
       //<div style={{ display: 'flex', flexDirection:'row',  justifyContent: 'space-between'}}>{result}</div>
       <div style={{ display: 'flex', flexDirection:'row',  margin:'20px', alignItems:'centre', columnGap:'5px'}}>{result}</div>
     )  
-
-  }
-  export default LocalreportDisplay; 
+    
+}
+export default LocalreportDisplay; 
