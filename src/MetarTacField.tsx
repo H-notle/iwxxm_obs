@@ -32,10 +32,10 @@ function splitKeyIntoUnits <KeyPieces>(s:string,value:any){
   const pieces = s.split('_');
   let units = '';
   const words = [];
-  console.log(`splitKeyIntoUnits pieces=${pieces}`);
+  //console.log(`splitKeyIntoUnits pieces=${pieces}`);
   if (pieces.length > 1){
     const possUnits = pieces[pieces.length-1];
-    console.log(`splitKeyIntoUnits possUnits=${possUnits}`);
+    //console.log(`splitKeyIntoUnits possUnits=${possUnits}`);
     if (KNOWN_UNITS.includes(possUnits)){
       units= possUnits;
     }
@@ -84,7 +84,7 @@ const MetarTacField: React.FC<MetarTacFieldProps> = ({tacField,styling,elementNa
   if (elementName) {
     //allInfo = splitKeyIntoUnits('AnotherLittleBrown_kiwi_fromNZ_C',99);
     allInfo = splitKeyIntoUnits(elementName,value);
-    console.log(`MetarTacField given "${elementName}" split into allInfo: [pieces:${allInfo.pieces}  units:${allInfo.units}]`);
+    //console.log(`MetarTacField given "${elementName}" split into allInfo: [pieces:${allInfo.pieces}  units:${allInfo.units}]`);
 }
   if (styling &&  styling === '<b>') {
     let inRed = '';

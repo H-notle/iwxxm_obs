@@ -1,18 +1,17 @@
 import React from 'react';
 //import { forEachChild } from 'typescript';
 import MetarFields, { CloudGroup } from './MetarFields';
-import { LocalReportDisplayUnits, lr_formatTemp } from './Localreport';
+import { lr_loadUnits,load1minuteWind, LocalReportDisplayUnits, lr_formatTemp, maxTimeSeries, minTimeSeries } from './Localreport';
 import {DisplayUnits, formatRunwayState,is_cccc,formatTimeDDHHMM,icaoNumberStr,icaoNumberStr2orMore,formatWind, isCAVOK, formatViz, formatPresentWx, formatClouds, formatTemps, formatRecentWx, formatPressure, loadUnits } from "./Metar";
 import MetarTacField from './MetarTacField';
 import { valueRoundedDownto100s } from './library';
-//import lr_formatWind from './Localreport';
-import { lr_loadUnits } from './Localreport';
 
 function lr_formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) :string{
   const result = [];
   let ddd = '///';
   let ff  = '//';
   let gg = '';
+  let gMin = '';
   let wind = '';
   try {
     result.push('WIND'); 
@@ -39,7 +38,18 @@ function lr_formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) :string
       }  
       if (parsedMetar["gust_ms"]) {
         gg = `MAX ${icaoNumberStr2orMore(parsedMetar["gust_ms"]*setUnits['windSpeed'])}`;
+      } else {
+        const maxWind = load1minuteWind(parsedMetar,maxTimeSeries); 
+        const minWind = load1minuteWind(parsedMetar,minTimeSeries);
+        console.log(`lr_formatWind maxWind=${maxWind}, minWind = ${minWind}`) 
+        if (!isNaN(maxWind)){
+          gg = `MAX ${Math.ceil(maxWind*setUnits['windSpeed'])}`
+        }
+        if (!isNaN(minWind)){
+          gMin = `MNM ${Math.ceil(minWind*setUnits['windSpeed'])}`
+        }
       }
+
     }      
     //result.push(setUnits['windSpeedUnits']);
   } catch (e) {
@@ -48,8 +58,10 @@ function lr_formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) :string
   wind = `${ddd}${ff}${setUnits['windSpeedUnits']}`;
   if (gg !== ''){
     wind = `${wind} ${gg}`;
+  } 
+  if (gMin !== ''){
+    wind = `${wind} ${gMin}`;
   }
-
   return wind; 
 }
 export function lr_formatViz(parsedMetar : MetarFields, setUnits:DisplayUnits,displayFormat:string) {
@@ -266,7 +278,7 @@ const LocalreportDisplay: React.FC<LocalreportSmartDisplayProps> = ({parsedMetar
       result.push(MetarTacField({tacField:formatTimeDDHHMM(parsedMetar)+'Z',styling:'',elementName:'',value:parsedMetar.datetime})); // strictly  MM should be mm=00/30 for METAR
       
       result.push(MetarTacField({tacField:lr_formatWind(parsedMetar,setUnits),styling:calculateStyling(keyPhrases,'wind'),elementName:'?',value:''}));
-      
+
       // if (isCAVOK(parsedMetar) && displayFormat !== 'nz') {
 
       //   result.push(MetarTacField({tacField:'CAVOK',styling:calculateStyling(keyPhrases,'viz,wx'),elementName:'CAVOK',value:'CAVOK'}));

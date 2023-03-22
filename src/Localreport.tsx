@@ -533,7 +533,57 @@ function addMinutes(pDate:Date, minutes:number) {
   return new Date(pDate.getTime() + minutes*60000);
 }
 
-function averageTimeSeries(uglyAs:string,earliest:Date,latest:Date,minReports:number):number{
+export function minTimeSeries(uglyAs:string,earliest:Date,latest:Date,minReports:number):number{
+  //console.log(`minTimeSeries entry`);
+  const earliestT = earliest.getTime();  
+  const latestT = latest.getTime();
+  let result = findextremeTimeSeries(uglyAs,earliestT,latestT,minReports,Math.min);
+  return result;
+}
+
+export function maxTimeSeries(uglyAs:string,earliest:Date,latest:Date,minReports:number):number{
+  //console.log(`maxTimeSeries entry`);
+  const earliestT = earliest.getTime();  
+  const latestT = latest.getTime();
+  let result = findextremeTimeSeries(uglyAs,earliestT,latestT,minReports,Math.max);
+  return result;
+}
+
+export function findextremeTimeSeries(uglyAs:string,earliestT:number,latestT:number,minReports:number,functionToCall:Function):number{
+  console.log(`findextremeTimeSeries entry`);
+  const a = JSON.parse(uglyAs);
+  let result = NaN;
+  let obCount = 0;
+  //const earliestT = earliest.getTime();  
+  //const latestT = latest.getTime();
+  for (const dtString in a){
+    try {
+      const thisDT = new Date(dtString);    
+      const obT = thisDT.getTime(); 
+      if (earliestT <= obT && obT <= latestT && !Number.isNaN(a[dtString])){
+        const n = Number(a[dtString]);
+        if (isNaN(result)) {
+          result =  n;
+        } else if (!isNaN(n)){
+          result = functionToCall(n,result);
+        }
+        obCount = obCount + 1;
+      } else{
+        console.log(`findextremeTimeSeries  ${dtString} is the wrong time`);
+      }
+    } catch (e){
+      console.log(`findextremeTimeSeries  exception extreme data for ${dtString} val was >${a[dtString]}<  "${e}"`);
+    }
+  }
+  if (obCount < minReports){
+    result= NaN;
+  }
+  console.log(`findextremeTimeSeries checked ${obCount} -  max was ${result}`);
+  return result;
+}
+
+export function averageTimeSeries(uglyAs:string,earliest:Date,latest:Date,minReports:number):number{
+  console.log(`averageTimeSeries entry`);
   const a = JSON.parse(uglyAs);
   let result = NaN;
   let sum = 0.0;
@@ -566,7 +616,7 @@ function averageTimeSeries(uglyAs:string,earliest:Date,latest:Date,minReports:nu
   return result;
 }
 
-function load1minuteWind(parsedMetar: MetarFields) : number {
+export function load1minuteWind(parsedMetar: MetarFields, functionToCall : Function  ) : number {
   // overly simple... doesn't check that there is a minute between the obs
   let result = NaN;
   const extraKeys = Object.keys(parsedMetar.extras);
@@ -579,13 +629,13 @@ function load1minuteWind(parsedMetar: MetarFields) : number {
       //console.log(`load1minuteWind trying to use 1min data`);
       // I can't work out how to cleanly pass this data into the averaging method & unpacking it without typescript getting all confused...
       const uglyAs = JSON.stringify(parsedMetar.extras['windSpeed1min_ms']);
-      result = averageTimeSeries(uglyAs,earliestTime,latestTime,10);
+      result = functionToCall(uglyAs,earliestTime,latestTime,10);
     } 
     if (Number.isNaN(result)) {
       if (extraKeys.includes('windSpeed30sec_ms')){
         //console.log(`load1minuteWind trying to use 30sec data`);
         const uglyAs = JSON.stringify(parsedMetar.extras['windSpeed30sec_ms']);
-        result = averageTimeSeries(uglyAs,earliestTime,latestTime,20);
+        result = functionToCall(uglyAs,earliestTime,latestTime,20);
       } else {
         console.log(`load1minuteWind no other wind fields found in ${extraKeys}`);
       }
@@ -604,11 +654,13 @@ const LocalReport: React.FC<MetarProps> = ({ metar,displayFormat,keywordInfo,sel
   const lKeywordInfo = JSON.parse(keywordInfo);   
   if (!parsedMetar.meanWindSpeed_ms){
     //console.log('Metar calling load1minuteWind');
-    parsedMetar.meanWindSpeed_ms = load1minuteWind(parsedMetar); 
+    parsedMetar.meanWindSpeed_ms = load1minuteWind(parsedMetar,averageTimeSeries); 
     //console.log(`Metar called load1minuteWind wind speed=${parsedMetar.meanWindSpeed_ms}`);
   }
+  //const maxWind = load1minuteWind(parsedMetar,maxTimeSeries); 
+  //const minWind = load1minuteWind(parsedMetar,minTimeSeries); 
   const keyPhrases = lKeywordInfo[selectedKeyword];
-  const tac= localreport_to_string(parsedMetar, setUnits, displayFormat);
+  //const tac= localreport_to_string(parsedMetar, setUnits, displayFormat);
 
   return (  
     <>
