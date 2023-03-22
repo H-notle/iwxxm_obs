@@ -3,6 +3,7 @@
 	"flags": [
 		"METAR",
 		"SYNOP",
+		"LOCAL",
 		"AUTO"
 	],
 	"datetime": "2022-12-15T05:00:00Z",
@@ -15,6 +16,7 @@
 	"recentWeather": "FG",
 	"meanWindDirection_Deg": 100,
 	"meanWindSpeed_ms": 8.0,
+	"gust_ms":15,
 	"extremeClockwiseWindDirection_Deg": 150,
 	"extremeCounterClockwiseWindDirection_Deg": 60,
 	"prevailingVisibility_m": 12345,

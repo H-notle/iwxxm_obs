@@ -1,5 +1,6 @@
 import React from 'react';
 import Metar from './Metar';
+import Localreport from './Localreport';
 //import ExtraData from './Metar';
 import defaultIwxxmData from './here_is_some_data.json';
 import aircraftTypes from './aircraftTypes.json';
@@ -88,8 +89,9 @@ function App() {
             <input type="radio" value="european" id="european"
               onChange={()=> setFormat('european')} name="displayFormat"/>
             <label>European</label>    
+      {metar && <Localreport metar={metar} displayFormat={displayFormat} keywordInfo={JSON.stringify(keywords,null,2)} selectedKeyword={selectedKeyword}/>}
       {metar && <Metar metar={metar} displayFormat={displayFormat} keywordInfo={JSON.stringify(keywords,null,2)} selectedKeyword={selectedKeyword}/>}
-
+      
       {/* <p>ac type={chosenType}</p> */}
       {/*<p> TODO show errors/exceptions......)</p>
       <p> TODO add TREND data......</p>
