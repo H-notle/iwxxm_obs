@@ -31,11 +31,13 @@ function lr_formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) :string
   }
   // no checking of wind cf gust values > 5 knots etc  (wait for colour highlighting...)
   try {
+    // TODO this is not strictly correct as LOCAL reports are averages over 2 mins not 10 as METARs are  
     if (parsedMetar["meanWindSpeed_ms"] ){
       ff = `${Math.ceil(parsedMetar["meanWindSpeed_ms"]*setUnits['windSpeed'])}`;  
       if (ff.length === 1) {
         ff = `/${ff}`
       }  
+
       if (parsedMetar["gust_ms"]) {
         gg = `MAX ${icaoNumberStr2orMore(parsedMetar["gust_ms"]*setUnits['windSpeed'])}`;
       } else {

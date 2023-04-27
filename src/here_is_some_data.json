@@ -6,6 +6,9 @@
 		"LOCAL",
 		"AUTO"
 	],
+	"dataSource":"NZ Met Service",
+	"usagePermissions":"TODO",
+	"anyOtherUsageInformation":"TODO",
 	"datetime": "2022-12-15T05:00:00Z",
 	"station": "NZHB",
 	"airTemperature_C": 27.9,

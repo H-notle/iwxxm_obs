@@ -281,7 +281,7 @@ export function formatWind_plain(parsedMetar : MetarFields, setUnits:DisplayUnit
     if (antiClock && clock){
       result.push(`${antiClock} to ${clock}`.replaceAll('erly',''));
     } else {
-      result.push(`esp. to the ${antiClock}${clock}`.replace('erly',''));
+      result.push(`esp. to the ${antiClock}${clock}`.replace('erly','')); // one is blank!
     }
   } 
   return result.join(' ')+'.';
@@ -291,7 +291,9 @@ export function formatWind(parsedMetar : MetarFields, setUnits:DisplayUnits) {
   const result = [];
   try {
     //const roundedTo10Deg = parsedMetar["meanWindDirection_Deg"]
-    if (parsedMetar["meanWindSpeed_ms"] <= 3){ /// not sure these units are correct
+    if (parsedMetar["meanWindSpeed_ms"] <= 3){
+      result.push('000'); 
+    } else if (parsedMetar["meanWindSpeed_ms"] <= 3){ /// not sure these units are correct
       result.push('VRB'); 
     } else if (parsedMetar["meanWindDirection_Deg"] > 360) {
       result.push('///');
@@ -831,6 +833,9 @@ function addMinutes(pDate:Date, minutes:number) {
 }
 
 function averageTimeSeries(uglyAs:string,earliest:Date,latest:Date,minReports:number):number{
+  //N.B. (TODO) this is not completely kosher as things like wind have rules about if there 
+  //is a direction discontinuity of > 30 deg then and there is more than 2 mins data and .... 
+  // then only after the discontinuity should be looked at.
   const a = JSON.parse(uglyAs);
   let result = NaN;
   let sum = 0.0;
@@ -910,11 +915,7 @@ const Metar: React.FC<MetarProps> = ({ metar,displayFormat,keywordInfo,selectedK
 //[content-position:'right']  style={{ display: 'flex', flexDirection:'column', ,justifyContent: 'right'}}
   return (  
     <>
-      {/* <div >
 
-        {tac}
-   
-    </div> */}
     <div >
       <MetarSmartDisplay parsedMetar={parsedMetar} displayFormat= {displayFormat} keywordInfo={keywordInfo} selectedKeyword={selectedKeyword}/>
     </div>

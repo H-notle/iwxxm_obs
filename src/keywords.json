@@ -5,5 +5,5 @@
     "Wind":[ "wind", "meanWindDirection_Deg","meanWindSpeed_ms","extremeClockwiseWindDirection_Deg","extremeCounterClockwiseWindDirection_Deg","_Deg","_ms","_mph","_kt"],
     "Weather":["wx","presentWeather","RecentWeather","Weather"],
     "Runway":["runway","runwayInfo"],
-    "Visibility":["viz","_M","Visibility"]
+    "Visibility":["viz","_M","isibility","_m"]
 }
